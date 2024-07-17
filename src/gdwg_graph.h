@@ -24,6 +24,13 @@ namespace gdwg {
 		using edge = gdwg::edge<N, W>;
 		graph();
 		// Your member functions go here
+		template<typename InputIterator>
+		graph(InputIterator first, InputIterator last);
+
+		graph(std::initializer_list<N> il)
+		: graph(il.begin(), il.end()) { // delegate to range constructor
+		}
+
 	 private:
 		std::vector<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -35,5 +42,19 @@ gdwg::graph<N, W>::graph()
 : nodes_()
 , edges_() {
 	// Constructor
+}
+
+template<typename N, typename W>
+template<typename InputIterator>
+gdwg::graph<N, W>::graph(InputIterator first, InputIterator last) {
+	static_assert(
+	    std::is_base_of<std::input_iterator_tag, typename std::iterator_traits<InputIterator>::iterator_category>::value,
+	    "InputIt must be an input iterator");
+
+	// Check if the dereferenced iterator type is convertible to N
+	static_assert(std::is_convertible<typename std::iterator_traits<InputIterator>::value_type, N>::value,
+	              "The dereferenced iterator type must be convertible to N");
+	nodes_.assign(first, last);
+	// might modify for insert edge
 }
 #endif // GDWG_GRAPH_H
