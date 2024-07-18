@@ -70,6 +70,15 @@ namespace gdwg {
 	 private:
 		W weight_;
 	};
+	template<typename N, typename W>
+	class unweighted_edge : public edge<N, W> {
+	 public:
+		unweighted_edge(N src, N dst)
+		: edge<N, W>(src, dst) {}
+		~unweighted_edge() noexcept override = default; // virtual destructor
+
+		std::optional<W> get_weight() const noexcept override;
+	};
 
 } // namespace gdwg
 
@@ -135,5 +144,9 @@ auto gdwg::graph<N, W>::operator=(graph const& other) -> graph& {
 template<typename N, typename W>
 auto gdwg::weighted_edge<N, W>::get_weight() const noexcept -> std::optional<W> {
 	return weight_;
+}
+template<typename N, typename W>
+auto gdwg::unweighted_edge<N, W>::get_weight() const noexcept -> std::optional<W> {
+	return std::nullopt;
 }
 #endif // GDWG_GRAPH_H
