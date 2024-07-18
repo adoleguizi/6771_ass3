@@ -2,6 +2,7 @@
 #define GDWG_GRAPH_H
 #include <type_traits>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 // TODO: Make both graph and edge generic
@@ -12,10 +13,12 @@ namespace gdwg {
 	template<typename N, typename W>
 	class graph;
 
-	template<typename N>
+	template<typename N, typename W>
 	class edge {
 	 public:
 		virtual ~edge() = default;
+
+		virtual std::optional<W> get_weight() const = 0;
 
 	 private:
 		N src_;
@@ -31,7 +34,7 @@ namespace gdwg {
 	template<typename N, typename W>
 	class graph {
 	 public:
-		using edge = gdwg::edge<N>;
+		using edge = gdwg::edge<N, W>;
 		graph();
 		// Your member functions go here
 		template<typename InputIterator>
@@ -54,11 +57,15 @@ namespace gdwg {
 		std::vector<std::unique_ptr<edge>> edges_;
 	};
 	template<typename N, typename W>
-	class weighted_edge : public edge<N> {
+	class weighted_edge : public edge<N, W> {
 	 public:
 		weighted_edge(N src, N dst, W weight)
-		: edge<N>(src, dst)
+		: edge<N, W>(src, dst)
 		, weight_(weight) {}
+		~weighted_edge() noexcept override {
+			// 由于此类不管理直接的资源，此处不需要执行特定操作
+		}
+		auto get_weight() const noexcept -> std::optional<W> override;
 
 	 private:
 		W weight_;
@@ -107,7 +114,7 @@ gdwg::graph<N, W>::graph(graph const& other) {
 	nodes_ = other.nodes_;
 	// might modify for insert edge
 	for (auto const& edge : other.edges_) {
-		edges_.push_back(std::make_unique<gdwg::edge<N>>(*edge));
+		edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
 	}
 }
 template<typename N, typename W>
@@ -120,9 +127,13 @@ auto gdwg::graph<N, W>::operator=(graph const& other) -> graph& {
 		nodes_ = other.nodes_;
 		// deep copy edges
 		for (const auto& edge : other.edges_) {
-			edges_.push_back(std::make_unique<gdwg::edge<N>>(*edge));
+			edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
 		}
 	}
 	return *this;
+}
+template<typename N, typename W>
+auto gdwg::weighted_edge<N, W>::get_weight() const noexcept -> std::optional<W> {
+	return weight_;
 }
 #endif // GDWG_GRAPH_H
