@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <memory>
 #include <optional>
+#include <string>
 #include <utility>
 #include <vector>
 // TODO: Make both graph and edge generic
@@ -22,7 +23,9 @@ namespace gdwg {
 		// is_weighted() const noexcept -> bool;
 		[[nodiscard]] virtual auto is_weighted() const noexcept -> bool = 0;
 		// get_nodes() const noexcept -> std::pair<N, N>;
-		virtual auto get_nodes() const noexcept -> std::pair<N, N>;
+		virtual auto get_nodes() const noexcept -> std::pair<N, N> = 0;
+		// print_edge() const noexcept -> std::string;
+		virtual auto print_edge() const noexcept -> std::string = 0;
 
 	 private:
 		N src_;
@@ -72,6 +75,7 @@ namespace gdwg {
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
+		auto print_edge() const noexcept -> std::string override;
 
 	 private:
 		E weight_;
@@ -86,6 +90,7 @@ namespace gdwg {
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
+		auto print_edge() const noexcept -> std::string override;
 	};
 
 } // namespace gdwg
@@ -172,5 +177,13 @@ auto gdwg::weighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> {
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> {
 	return std::make_pair(this->src_, this->dst_);
+}
+template<typename N, typename E>
+auto gdwg::weighted_edge<N, E>::print_edge() const noexcept -> std::string {
+	return std::to_string(this->src_) + " -> " + std::to_string(this->dst_) + " | W |  " + std::to_string(weight_);
+}
+template<typename N, typename E>
+auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
+	return std::to_string(this->src_) + " -> " + std::to_string(this->dst_) + " | U";
 }
 #endif // GDWG_GRAPH_H
