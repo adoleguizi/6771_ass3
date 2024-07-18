@@ -33,6 +33,8 @@ namespace gdwg {
 		}
 
 		graph(graph&& other) noexcept;
+		// move assignment opeartor=
+		auto operator=(graph&& other) noexcept -> graph&;
 
 	 private:
 		std::vector<N> nodes_;
@@ -68,4 +70,13 @@ edges_(std::exchange(other.edges_, {})) // using std::exchange to set other.edge
 {
 	// Move constructor
 }
+template<typename N, typename W>
+auto gdwg::graph<N, W>::operator=(graph&& other) noexcept -> graph& {
+	if (this != &other) {
+		nodes_ = std::exchange(other.nodes_, {});
+		edges_ = std::exchange(other.edges_, {});
+	}
+	return *this;
+}
+
 #endif // GDWG_GRAPH_H
