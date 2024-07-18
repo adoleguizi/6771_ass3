@@ -12,18 +12,26 @@ namespace gdwg {
 	template<typename N, typename W>
 	class graph;
 
-	template<typename N, typename W>
+	template<typename N>
 	class edge {
 	 public:
+		virtual ~edge() = default;
+
 	 private:
+		N src_;
+		N dst_;
 		// You may need to add data members and member functions
-		friend class graph<N, W>;
+		template<typename NW, typename EW>
+		friend class graph;
+		edge(N src, N dst)
+		: src_(src)
+		, dst_(dst) {}
 	};
 
 	template<typename N, typename W>
 	class graph {
 	 public:
-		using edge = gdwg::edge<N, W>;
+		using edge = gdwg::edge<N>;
 		graph();
 		// Your member functions go here
 		template<typename InputIterator>
@@ -45,6 +53,17 @@ namespace gdwg {
 		std::vector<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
 	};
+	template<typename N, typename W>
+	class weighted_edge : public edge<N> {
+	 public:
+		weighted_edge(N src, N dst, W weight)
+		: edge<N>(src, dst)
+		, weight_(weight) {}
+
+	 private:
+		W weight_;
+	};
+
 } // namespace gdwg
 
 template<typename N, typename W>
@@ -88,7 +107,7 @@ gdwg::graph<N, W>::graph(graph const& other) {
 	nodes_ = other.nodes_;
 	// might modify for insert edge
 	for (auto const& edge : other.edges_) {
-		edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
+		edges_.push_back(std::make_unique<gdwg::edge<N>>(*edge));
 	}
 }
 template<typename N, typename W>
@@ -101,7 +120,7 @@ auto gdwg::graph<N, W>::operator=(graph const& other) -> graph& {
 		nodes_ = other.nodes_;
 		// deep copy edges
 		for (const auto& edge : other.edges_) {
-			edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
+			edges_.push_back(std::make_unique<gdwg::edge<N>>(*edge));
 		}
 	}
 	return *this;
