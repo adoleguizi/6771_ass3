@@ -1,6 +1,7 @@
 #ifndef GDWG_GRAPH_H
 #define GDWG_GRAPH_H
 #include <memory>
+#include <utility>
 #include <vector>
 // TODO: Make both graph and edge generic
 //       ... this won't just compile
@@ -31,6 +32,8 @@ namespace gdwg {
 		: graph(il.begin(), il.end()) { // delegate to range constructor
 		}
 
+		graph(graph&& other) noexcept;
+
 	 private:
 		std::vector<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -56,5 +59,13 @@ gdwg::graph<N, W>::graph(InputIterator first, InputIterator last) {
 	              "The dereferenced iterator type must be convertible to N");
 	nodes_.assign(first, last);
 	// might modify for insert edge
+}
+template<typename N, typename W>
+gdwg::graph<N, W>::graph(graph&& other) noexcept
+: nodes_(std::exchange(other.nodes_, {}))
+, // using std::exchange to set other.nodes_ to empty
+edges_(std::exchange(other.edges_, {})) // using std::exchange to set other.edges_ to empty
+{
+	// Move constructor
 }
 #endif // GDWG_GRAPH_H
