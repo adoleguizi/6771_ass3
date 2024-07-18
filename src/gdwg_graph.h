@@ -1,5 +1,6 @@
 #ifndef GDWG_GRAPH_H
 #define GDWG_GRAPH_H
+#include <type_traits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -35,6 +36,8 @@ namespace gdwg {
 		graph(graph&& other) noexcept;
 		// move assignment opeartor=
 		auto operator=(graph&& other) noexcept -> graph&;
+		// copy constructor
+		graph(graph const& other);
 
 	 private:
 		std::vector<N> nodes_;
@@ -78,5 +81,12 @@ auto gdwg::graph<N, W>::operator=(graph&& other) noexcept -> graph& {
 	}
 	return *this;
 }
-
+template<typename N, typename W>
+gdwg::graph<N, W>::graph(graph const& other) {
+	nodes_ = other.nodes_;
+	// might modify for insert edge
+	for (auto const& edge : other.edges_) {
+		edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
+	}
+}
 #endif // GDWG_GRAPH_H
