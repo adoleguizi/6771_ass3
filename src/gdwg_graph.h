@@ -38,6 +38,8 @@ namespace gdwg {
 		auto operator=(graph&& other) noexcept -> graph&;
 		// copy constructor
 		graph(graph const& other);
+		// copy assignment operator=
+		auto operator=(graph const& other) -> graph&;
 
 	 private:
 		std::vector<N> nodes_;
@@ -88,5 +90,20 @@ gdwg::graph<N, W>::graph(graph const& other) {
 	for (auto const& edge : other.edges_) {
 		edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
 	}
+}
+template<typename N, typename W>
+auto gdwg::graph<N, W>::operator=(graph const& other) -> graph& {
+	if (this != &other) {
+		// clear the current nodes and edges
+		nodes_.clear();
+		edges_.clear();
+		// deep copy nodes
+		nodes_ = other.nodes_;
+		// deep copy edges
+		for (const auto& edge : other.edges_) {
+			edges_.push_back(std::make_unique<gdwg::edge<N, W>>(*edge));
+		}
+	}
+	return *this;
 }
 #endif // GDWG_GRAPH_H
