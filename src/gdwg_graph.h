@@ -21,6 +21,8 @@ namespace gdwg {
 		virtual std::optional<E> get_weight() const = 0;
 		// is_weighted() const noexcept -> bool;
 		[[nodiscard]] virtual auto is_weighted() const noexcept -> bool = 0;
+		// get_nodes() const noexcept -> std::pair<N, N>;
+		virtual auto get_nodes() const noexcept -> std::pair<N, N>;
 
 	 private:
 		N src_;
@@ -69,6 +71,7 @@ namespace gdwg {
 		}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
+		auto get_nodes() const noexcept -> std::pair<N, N> override;
 
 	 private:
 		E weight_;
@@ -82,6 +85,7 @@ namespace gdwg {
 
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
+		auto get_nodes() const noexcept -> std::pair<N, N> override;
 	};
 
 } // namespace gdwg
@@ -160,5 +164,13 @@ auto gdwg::weighted_edge<N, E>::is_weighted() const noexcept -> bool {
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::is_weighted() const noexcept -> bool {
 	return false;
+}
+template<typename N, typename E>
+auto gdwg::weighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> {
+	return std::make_pair(this->src_, this->dst_);
+}
+template<typename N, typename E>
+auto gdwg::unweighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> {
+	return std::make_pair(this->src_, this->dst_);
 }
 #endif // GDWG_GRAPH_H
