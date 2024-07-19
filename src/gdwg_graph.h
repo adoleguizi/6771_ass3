@@ -61,6 +61,8 @@ namespace gdwg {
 		auto operator=(graph const& other) -> graph&;
 		// modifiers
 		auto insert_node(N const& val) -> bool;
+		// accessors is_node in graph
+		[[nodiscard]] auto is_node(N const& value) const noexcept -> bool;
 
 	 private:
 		std::unordered_set<N> nodes_;
@@ -193,5 +195,9 @@ template<typename N, typename E>
 auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
 	auto result = nodes_.insert(value);
 	return result.second; // 如果插入成功，返回 true；否则返回 false
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::is_node(N const& value) const noexcept -> bool {
+	return nodes_.find(value) != nodes_.end();
 }
 #endif // GDWG_GRAPH_H
