@@ -1,6 +1,7 @@
 #ifndef GDWG_GRAPH_H
 #define GDWG_GRAPH_H
 #include <type_traits>
+#include <unordered_set>
 #include <memory>
 #include <optional>
 #include <string>
@@ -58,9 +59,11 @@ namespace gdwg {
 		graph(graph const& other);
 		// copy assignment operator=
 		auto operator=(graph const& other) -> graph&;
+		// modifiers
+		auto insert_node(N const& val) -> bool;
 
 	 private:
-		std::vector<N> nodes_;
+		std::unordered_set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
 	};
 	template<typename N, typename E>
@@ -185,5 +188,10 @@ auto gdwg::weighted_edge<N, E>::print_edge() const noexcept -> std::string {
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
 	return std::to_string(this->src_) + " -> " + std::to_string(this->dst_) + " | U";
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
+	auto result = nodes_.insert(value);
+	return result.second; // 如果插入成功，返回 true；否则返回 false
 }
 #endif // GDWG_GRAPH_H
