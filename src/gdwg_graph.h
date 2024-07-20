@@ -1,9 +1,11 @@
 #ifndef GDWG_GRAPH_H
 #define GDWG_GRAPH_H
+#include <initializer_list>
 #include <type_traits>
 #include <unordered_set>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -63,6 +65,8 @@ namespace gdwg {
 		auto insert_node(N const& val) -> bool;
 		// accessors is_node in graph
 		[[nodiscard]] auto is_node(N const& value) const noexcept -> bool;
+
+		auto insert_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
 	 private:
 		std::unordered_set<N> nodes_;
@@ -199,5 +203,30 @@ auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::is_node(N const& value) const noexcept -> bool {
 	return nodes_.find(value) != nodes_.end();
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
+	if (!is_node(src) or !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::insert_edge when either src or dst node does not "
+		                         "exist");
+	}
+	// no same weight in edge
+	for (const auto& e : edges_) {
+		if (e->get_nodes() == std::make_pair(src, dst)) {
+			if (weight and e->get_weight() == weight) {
+				return false;
+			}
+			else if (!weight and e->get_weight() == std::nullopt) {
+				return false;
+			}
+		}
+	}
+	if (weight) {
+		edges_.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, *weight));
+	}
+	else {
+		edges_.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
+	}
+	return true;
 }
 #endif // GDWG_GRAPH_H
