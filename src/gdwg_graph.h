@@ -121,7 +121,9 @@ gdwg::graph<N, E>::graph(InputIterator first, InputIterator last) {
 	// Check if the dereferenced iterator type is convertible to N
 	static_assert(std::is_convertible<typename std::iterator_traits<InputIterator>::value_type, N>::value,
 	              "The dereferenced iterator type must be convertible to N");
-	nodes_.assign(first, last);
+	for (auto it = first; it != last; ++it) {
+		insert_node(*it);
+	}
 	// might modify for insert edge
 }
 template<typename N, typename E>
