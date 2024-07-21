@@ -166,5 +166,24 @@ TEST_CASE("empty basic test") {
 
 	g.insert_node("B");
 	CHECK(g.empty() == false);
-	// not test after clear function
+	CHECK(g.insert_edge("A", "B", 1) == true);
+}
+TEST_CASE("erase_node existing node with edges") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+
+	bool result = g.erase_node("A");
+	CHECK(result == true);
+	CHECK(g.is_node("A") == false);
+	CHECK(g.is_node("B") == true);
+}
+TEST_CASE("erase_node non-existing node") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+
+	bool result = g.erase_node("D");
+	CHECK(result == false);
 }

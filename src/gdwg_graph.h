@@ -83,6 +83,8 @@ namespace gdwg {
 
 		[[nodiscard]] auto empty() -> bool;
 
+		auto erase_node(N const& value) -> bool;
+
 	 private:
 		std::unordered_set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -341,5 +343,26 @@ auto gdwg::graph<N, E>::merge_replace_node(N const& old_data, N const& new_data)
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::empty() -> bool {
 	return nodes_.empty();
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::erase_node(N const& value) -> bool {
+	if (!is_node(value)) {
+		return false;
+	}
+	// first remove the edge that contains the node might src or dest
+	auto it = edges_.begin();
+	while (it != edges_.end()) {
+		auto nodes = (*it)->get_nodes();
+		if (nodes.first == value or nodes.second == value) {
+			it = edges_.erase(it);
+		}
+		// if the node is not in the edge, just move to the next edge oterwise deadloop
+		else {
+			++it;
+		}
+	}
+	// remove the node
+	nodes_.erase(value);
+	return true;
 }
 #endif // GDWG_GRAPH_H
