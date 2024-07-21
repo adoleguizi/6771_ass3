@@ -52,3 +52,23 @@ TEST_CASE("insert duplicate edges weight int and unweighted edge") {
 	g.insert_edge(2, 3);
 	CHECK(g.insert_edge(2, 3) == false);
 }
+TEST_CASE("replace node with a new node") {
+	auto g = gdwg::graph<int, std::string>{1, 2, 3};
+	REQUIRE(g.is_node(1));
+	REQUIRE(g.is_node(2));
+	REQUIRE(g.is_node(3));
+
+	// Replace existing node with a new node
+	REQUIRE(g.replace_node(1, 4));
+	CHECK(!g.is_node(1));
+	CHECK(g.is_node(4));
+}
+TEST_CASE("replace non-existing node") {
+	auto g = gdwg::graph<int, std::string>{1, 2, 3};
+	REQUIRE(g.is_node(1));
+	REQUIRE(g.is_node(2));
+	REQUIRE(g.is_node(3));
+
+	// Attempt to replace a non-existing node
+	CHECK_THROWS_WITH(g.replace_node(5, 6), "Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
+}

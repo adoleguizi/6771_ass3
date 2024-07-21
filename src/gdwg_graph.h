@@ -84,6 +84,8 @@ namespace gdwg {
 		[[nodiscard]] auto is_node(N const& value) const noexcept -> bool;
 
 		auto insert_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+		// replace_node()
+		auto replace_node(N const& old_data, N const& new_data) -> bool;
 
 	 private:
 		std::unordered_set<N> nodes_;
@@ -260,6 +262,20 @@ auto gdwg::graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E>
 	else {
 		edges_.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
 	}
+	return true;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::replace_node(N const& old_data, N const& new_data) -> bool {
+	if (!is_node(old_data)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
+	}
+	if (is_node(new_data)) {
+		return false;
+	}
+	// Replace the node
+	nodes_.erase(old_data);
+	nodes_.insert(new_data);
+	// no need to update the edges, since only the node data is changed
 	return true;
 }
 #endif // GDWG_GRAPH_H
