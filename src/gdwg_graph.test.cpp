@@ -187,3 +187,23 @@ TEST_CASE("erase_node non-existing node") {
 	bool result = g.erase_node("D");
 	CHECK(result == false);
 }
+TEST_CASE("erase_node existing node without edges") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+
+	bool result = g.erase_node("C");
+	CHECK(result == true);
+	CHECK(g.is_node("C") == false);
+}
+TEST_CASE("erase_node with self loop") {
+	auto g = gdwg::graph<int, int>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 1, 5);
+
+	bool result = g.erase_node(1);
+	CHECK(result == true);
+	CHECK(g.is_node(1) == false);
+}
