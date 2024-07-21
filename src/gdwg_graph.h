@@ -81,6 +81,8 @@ namespace gdwg {
 		// replace_edge()
 		auto merge_replace_node(N const& old_data, N const& new_data) -> void;
 
+		[[nodiscard]] auto empty() -> bool;
+
 	 private:
 		std::unordered_set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -335,5 +337,9 @@ auto gdwg::graph<N, E>::merge_replace_node(N const& old_data, N const& new_data)
 	}
 	edges_ = std::move(new_edges);
 	nodes_.erase(old_data);
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::empty() -> bool {
+	return nodes_.empty();
 }
 #endif // GDWG_GRAPH_H

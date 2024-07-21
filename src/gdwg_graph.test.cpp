@@ -157,3 +157,14 @@ TEST_CASE("merge_replace_node with self loop") {
 	CHECK(g.insert_edge("B", "B", 1) == false);
 	CHECK(g.insert_edge("B", "B", 2) == false);
 }
+TEST_CASE("empty basic test") {
+	auto g = gdwg::graph<std::string, int>{};
+	CHECK(g.empty() == true);
+
+	g.insert_node("A");
+	CHECK(g.empty() == false);
+
+	g.insert_node("B");
+	CHECK(g.empty() == false);
+	// not test after clear function
+}
