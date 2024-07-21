@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -18,9 +19,13 @@ namespace gdwg {
 	class graph;
 
 	template<typename N, typename E>
+	class weighted_edge;
+	template<typename N, typename E>
+	class unweighted_edge;
+	template<typename N, typename E>
 	class edge {
 	 public:
-		virtual ~edge() = default;
+		virtual ~edge() = 0;
 
 		virtual std::optional<E> get_weight() const = 0;
 		// is_weighted() const noexcept -> bool;
@@ -36,9 +41,19 @@ namespace gdwg {
 		// You may need to add data members and member functions
 		template<typename NW, typename EW>
 		friend class graph;
+		friend class weighted_edge<N, E>;
+		friend class unweighted_edge<N, E>;
+		edge(const edge& other) = default;
+		edge& operator=(const edge& other) = default;
 		edge(N src, N dst)
 		: src_(src)
 		, dst_(dst) {}
+		template<typename T>
+		static std::string to_string(const T& value) {
+			std::stringstream ss;
+			ss << value;
+			return ss.str();
+		}
 	};
 
 	template<typename N, typename E>
@@ -78,8 +93,14 @@ namespace gdwg {
 		weighted_edge(N src, N dst, E weight)
 		: edge<N, E>(src, dst)
 		, weight_(weight) {}
-		~weighted_edge() noexcept override {
-			// 由于此类不管理直接的资源，此处不需要执行特定操作
+		~weighted_edge() noexcept override = default;
+		weighted_edge(const weighted_edge& other)
+		: edge<N, E>(other.src_, other.dst_) {}
+		weighted_edge& operator=(const weighted_edge& other) {
+			if (this != &other) {
+				edge<N, E>::operator=(other);
+			}
+			return *this;
 		}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
@@ -95,7 +116,15 @@ namespace gdwg {
 		unweighted_edge(N src, N dst)
 		: edge<N, E>(src, dst) {}
 		~unweighted_edge() noexcept override = default; // virtual destructor
+		unweighted_edge(const unweighted_edge& other)
+		: edge<N, E>(other.src_, other.dst_) {}
 
+		unweighted_edge& operator=(const unweighted_edge& other) {
+			if (this != &other) {
+				edge<N, E>::operator=(other);
+			}
+			return *this;
+		}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
@@ -146,8 +175,13 @@ template<typename N, typename E>
 gdwg::graph<N, E>::graph(graph const& other) {
 	nodes_ = other.nodes_;
 	// might modify for insert edge
-	for (auto const& edge : other.edges_) {
-		edges_.push_back(std::make_unique<gdwg::edge<N, E>>(*edge));
+	for (const auto& e : other.edges_) {
+		if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+			edges_.push_back(std::make_unique<weighted_edge<N, E>>(*we));
+		}
+		else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+			edges_.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+		}
 	}
 }
 template<typename N, typename E>
@@ -160,7 +194,12 @@ auto gdwg::graph<N, E>::operator=(graph const& other) -> graph& {
 		nodes_ = other.nodes_;
 		// deep copy edges
 		for (const auto& edge : other.edges_) {
-			edges_.push_back(std::make_unique<gdwg::edge<N, E>>(*edge));
+			if (auto we = dynamic_cast<weighted_edge<N, E>*>(edge.get())) {
+				edges_.push_back(std::make_unique<weighted_edge<N, E>>(*we));
+			}
+			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(edge.get())) {
+				edges_.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+			}
 		}
 	}
 	return *this;
@@ -191,11 +230,12 @@ auto gdwg::unweighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> 
 }
 template<typename N, typename E>
 auto gdwg::weighted_edge<N, E>::print_edge() const noexcept -> std::string {
-	return std::to_string(this->src_) + " -> " + std::to_string(this->dst_) + " | W |  " + std::to_string(weight_);
+	return edge<N, E>::to_string(this->src_) + " -> " + edge<N, E>::to_string(this->dst_) + " | W |  "
+	       + edge<N, E>::to_string(weight_);
 }
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
-	return std::to_string(this->src_) + " -> " + std::to_string(this->dst_) + " | U";
+	return edge<N, E>::to_string(this->src_) + " -> " + edge<N, E>::to_string(this->dst_) + " | U";
 }
 template<typename N, typename E>
 auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
