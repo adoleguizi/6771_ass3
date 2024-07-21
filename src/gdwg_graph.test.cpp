@@ -207,3 +207,26 @@ TEST_CASE("erase_node with self loop") {
 	CHECK(result == true);
 	CHECK(g.is_node(1) == false);
 }
+TEST_CASE("erase_node from an empty graph") {
+	auto g = gdwg::graph<int, int>{};
+
+	bool result = g.erase_node(3);
+	CHECK(result == false);
+}
+TEST_CASE("erase_node with incoming and outgoing edges") {
+	auto g = gdwg::graph<int, double>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, 1.5);
+	g.insert_edge(2, 3, 2.5);
+	g.insert_edge(3, 1, 3.5);
+
+	bool result = g.erase_node(2);
+	CHECK(result == true);
+	CHECK(g.is_node(2) == false);
+	CHECK(g.is_node(1) == true);
+	CHECK(g.is_node(3) == true);
+	CHECK_THROWS_AS(g.insert_edge(2, 3, 2.5), std::runtime_error);
+	CHECK_THROWS_AS(g.insert_edge(1, 2, 1.5), std::runtime_error);
+}
