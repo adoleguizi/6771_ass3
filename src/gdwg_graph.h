@@ -326,7 +326,7 @@ auto gdwg::graph<N, E>::merge_replace_node(N const& old_data, N const& new_data)
 		}
 		if (!duplicate) {
 			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
-				new_edges.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, we->weight_));
+				new_edges.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, *we->get_weight()));
 			}
 			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
 				new_edges.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));

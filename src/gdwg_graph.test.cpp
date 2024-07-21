@@ -72,3 +72,28 @@ TEST_CASE("replace non-existing node") {
 	// Attempt to replace a non-existing node
 	CHECK_THROWS_WITH(g.replace_node(5, 6), "Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
 }
+TEST_CASE("merge_replace_node basic test") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("B", "C", 3);
+
+	// Test merging "A" to "D" where "D" does not exist
+	CHECK_THROWS_WITH(g.merge_replace_node("A", "D"),
+	                  "Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't exist in the "
+	                  "graph");
+	// Insert "D" node to make the merge valid
+	g.insert_node("D");
+	g.merge_replace_node("A", "D");
+	CHECK(g.is_node("D"));
+	CHECK(!g.is_node("A"));
+	CHECK(g.is_node("B"));
+	CHECK(g.is_node("C"));
+	// Check that the edges are correctly replaced
+	CHECK(g.insert_edge("D", "B", 1) == false);
+	CHECK(g.insert_edge("D", "C", 2) == false);
+	CHECK(g.insert_edge("B", "C", 3) == false);
+}
