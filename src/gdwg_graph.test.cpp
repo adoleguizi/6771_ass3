@@ -97,3 +97,44 @@ TEST_CASE("merge_replace_node basic test") {
 	CHECK(g.insert_edge("D", "C", 2) == false);
 	CHECK(g.insert_edge("B", "C", 3) == false);
 }
+TEST_CASE("merge_replace_node with duplicate edges") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "C", 2);
+	g.insert_edge("B", "B", 1);
+
+	g.insert_node("D");
+
+	g.merge_replace_node("A", "B");
+
+	CHECK(g.is_node("B"));
+	CHECK(!g.is_node("A"));
+	CHECK(g.is_node("C"));
+
+	CHECK(g.insert_edge("B", "B", 1) == false);
+	CHECK(g.insert_edge("B", "C", 2) == false);
+}
+TEST_CASE("merge_replace_node with unweighted edges") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2);
+	g.insert_edge(1, 3);
+	g.insert_edge(2, 3);
+	g.insert_node(4);
+
+	g.merge_replace_node(1, 4);
+
+	CHECK(g.is_node(4));
+	CHECK(!g.is_node(1));
+	CHECK(g.is_node(2));
+	CHECK(g.is_node(3));
+
+	CHECK(g.insert_edge(4, 2) == false);
+	CHECK(g.insert_edge(4, 3) == false);
+	CHECK(g.insert_edge(2, 3) == false);
+}
