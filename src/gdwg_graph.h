@@ -46,12 +46,6 @@ namespace gdwg {
 		edge(N src, N dst)
 		: src_(src)
 		, dst_(dst) {}
-		template<typename T>
-		static std::string to_string(const T& value) {
-			std::stringstream ss;
-			ss << value;
-			return ss.str();
-		}
 	};
 	template<typename N, typename E>
 	inline edge<N, E>::~edge() = default;
@@ -112,6 +106,15 @@ namespace gdwg {
 		auto print_edge() const noexcept -> std::string override;
 
 	 private:
+		template<typename T>
+		std::string to_string(const T& value) const {
+			if constexpr (std::is_same_v<T, std::string>) {
+				return value;
+			}
+			else {
+				return std::to_string(value);
+			}
+		}
 		E weight_;
 	};
 	template<typename N, typename E>
@@ -135,6 +138,15 @@ namespace gdwg {
 		auto print_edge() const noexcept -> std::string override;
 
 	 private:
+		template<typename T>
+		std::string to_string(const T& value) const {
+			if constexpr (std::is_same_v<T, std::string>) {
+				return value;
+			}
+			else {
+				return std::to_string(value);
+			}
+		}
 	};
 
 } // namespace gdwg
@@ -236,12 +248,11 @@ auto gdwg::unweighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> 
 }
 template<typename N, typename E>
 auto gdwg::weighted_edge<N, E>::print_edge() const noexcept -> std::string {
-	return edge<N, E>::to_string(this->src_) + " -> " + edge<N, E>::to_string(this->dst_) + " | W |  "
-	       + edge<N, E>::to_string(weight_);
+	return to_string(this->src_) + " -> " + to_string(this->dst_) + " | W |  " + to_string(weight_);
 }
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
-	return edge<N, E>::to_string(this->src_) + " -> " + edge<N, E>::to_string(this->dst_) + " | U";
+	return to_string(this->src_) + " -> " + to_string(this->dst_) + " | U";
 }
 template<typename N, typename E>
 auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
