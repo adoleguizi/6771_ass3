@@ -78,6 +78,8 @@ namespace gdwg {
 		auto insert_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 		// replace_node()
 		auto replace_node(N const& old_data, N const& new_data) -> bool;
+		// replace_edge()
+		auto merge_replace_node(N const& old_data, N const& new_data) -> void;
 
 	 private:
 		std::unordered_set<N> nodes_;
@@ -301,5 +303,37 @@ auto gdwg::graph<N, E>::replace_node(N const& old_data, N const& new_data) -> bo
 	nodes_.insert(new_data);
 	// no need to update the edges, since only the node data is changed
 	return true;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::merge_replace_node(N const& old_data, N const& new_data) -> void {
+	if (!is_node(old_data) || !is_node(new_data)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't "
+		                         "exist in the graph");
+	}
+	std::vector<std::unique_ptr<edge>> new_edges;
+	// Iterate through current edges and replace old_data with new_data
+	for (const auto& e : edges_) {
+		auto nodes = e->get_nodes();
+		N src = (nodes.first == old_data) ? new_data : nodes.first;
+		N dst = (nodes.second == old_data) ? new_data : nodes.second;
+
+		bool duplicate = false;
+		for (const auto& edge : new_edges) {
+			if (edge->get_nodes() == std::make_pair(src, dst) and edge->get_weight() == e->get_weight()) {
+				duplicate = true;
+				break;
+			}
+		}
+		if (!duplicate) {
+			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+				new_edges.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, we->weight_));
+			}
+			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+				new_edges.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
+			}
+		}
+	}
+	edges_ = std::move(new_edges);
+	nodes_.erase(old_data);
 }
 #endif // GDWG_GRAPH_H
