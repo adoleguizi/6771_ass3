@@ -138,3 +138,22 @@ TEST_CASE("merge_replace_node with unweighted edges") {
 	CHECK(g.insert_edge(4, 3) == false);
 	CHECK(g.insert_edge(2, 3) == false);
 }
+TEST_CASE("merge_replace_node with self loop") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "A", 1);
+	g.insert_edge("A", "B", 2);
+
+	g.insert_node("C");
+
+	// Test merging "A" to "B"
+	g.merge_replace_node("A", "B");
+
+	CHECK(g.is_node("B"));
+	CHECK(!g.is_node("A"));
+
+	// Check that the edges are correctly replaced and duplicates removed
+	CHECK(g.insert_edge("B", "B", 1) == false);
+	CHECK(g.insert_edge("B", "B", 2) == false);
+}
