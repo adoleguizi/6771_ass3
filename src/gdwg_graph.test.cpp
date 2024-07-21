@@ -15,3 +15,17 @@ TEST_CASE("graph range constructor") {
 		CHECK(g.is_node(n));
 	}
 }
+// test copy constructor after defined inert_edge to copy
+TEST_CASE("graph copy constructor") {
+	auto g1 = gdwg::graph<int, std::string>{1, 2, 3};
+	g1.insert_edge(1, 2);
+	g1.insert_edge(2, 3, "weight1");
+
+	auto g2 = g1;
+
+	CHECK(g2.is_node(1));
+	CHECK(g2.is_node(2));
+	CHECK(g2.is_node(3));
+	CHECK(g2.insert_edge(1, 2) == false);
+	CHECK(g2.insert_edge(2, 3, "weight1") == false);
+}
