@@ -255,3 +255,26 @@ TEST_CASE("is_connected with nodes without edges") {
 
 	CHECK(g.is_connected(1, 2) == false);
 }
+TEST_CASE("is_connected with nodes and edges") {
+	auto g = gdwg::graph<int, double>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, 1.5);
+
+	CHECK(g.is_connected(1, 2) == true);
+}
+TEST_CASE("is_connected with self loop") {
+	auto g = gdwg::graph<int, double>{};
+	g.insert_node(1);
+	g.insert_edge(1, 1, 3.5);
+
+	CHECK(g.is_connected(1, 1) == true);
+}
+TEST_CASE("not_connected with dst->src edge") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+
+	CHECK(g.is_connected("B", "A") == false);
+}
