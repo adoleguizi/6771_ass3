@@ -2,9 +2,9 @@
 #define GDWG_GRAPH_H
 #include <initializer_list>
 #include <type_traits>
-#include <unordered_set>
 #include <memory>
 #include <optional>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -86,7 +86,7 @@ namespace gdwg {
 		auto erase_node(N const& value) -> bool;
 
 	 private:
-		std::unordered_set<N> nodes_;
+		std::set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
 	};
 	template<typename N, typename E>
