@@ -85,6 +85,8 @@ namespace gdwg {
 
 		auto erase_node(N const& value) -> bool;
 
+		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
+
 	 private:
 		std::set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -365,4 +367,18 @@ auto gdwg::graph<N, E>::erase_node(N const& value) -> bool {
 	nodes_.erase(value);
 	return true;
 }
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::is_connected(N const& src, N const& dst) -> bool {
+	if (!is_node(src) || !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the "
+		                         "graph");
+	}
+	for (const auto& e : edges_) {
+		if (e->get_nodes() == std::make_pair(src, dst)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 #endif // GDWG_GRAPH_H
