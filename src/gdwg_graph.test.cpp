@@ -230,3 +230,28 @@ TEST_CASE("erase_node with incoming and outgoing edges") {
 	CHECK_THROWS_AS(g.insert_edge(2, 3, 2.5), std::runtime_error);
 	CHECK_THROWS_AS(g.insert_edge(1, 2, 1.5), std::runtime_error);
 }
+TEST_CASE("is_connected with non-existing nodes") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+
+	CHECK_THROWS_WITH(g.is_connected("A", "D"),
+	                  "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+	CHECK_THROWS_WITH(g.is_connected("D", "A"),
+	                  "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+	CHECK_THROWS_WITH(g.is_connected("D", "E"),
+	                  "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+}
+TEST_CASE("is_connected with empty graph") {
+	auto g = gdwg::graph<int, double>{};
+
+	CHECK_THROWS_WITH(g.is_connected(1, 2),
+	                  "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the graph");
+}
+
+TEST_CASE("is_connected with nodes without edges") {
+	auto g = gdwg::graph<int, double>{};
+	g.insert_node(1);
+	g.insert_node(2);
+
+	CHECK(g.is_connected(1, 2) == false);
+}
