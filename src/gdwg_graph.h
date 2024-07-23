@@ -37,6 +37,13 @@ namespace gdwg {
 		// operator ==
 		virtual auto operator==(edge const& other) const noexcept -> bool = 0;
 
+	 protected:
+		edge(const edge& other) = default;
+		edge& operator=(const edge& other) = default;
+		edge(N src, N dst)
+		: src_(src)
+		, dst_(dst) {}
+
 	 private:
 		N src_;
 		N dst_;
@@ -45,9 +52,6 @@ namespace gdwg {
 		friend class graph;
 		friend class weighted_edge<N, E>;
 		friend class unweighted_edge<N, E>;
-		edge(N src, N dst)
-		: src_(src)
-		, dst_(dst) {}
 	};
 	template<typename N, typename E>
 	inline edge<N, E>::~edge() = default;
@@ -101,17 +105,9 @@ namespace gdwg {
 		weighted_edge(N src, N dst, E weight)
 		: edge<N, E>(src, dst)
 		, weight_(weight) {}
+		weighted_edge(const weighted_edge& other) = default;
+		weighted_edge& operator=(const weighted_edge& other) = default;
 		~weighted_edge() noexcept override = default;
-		weighted_edge(const weighted_edge& other)
-		: edge<N, E>(other.src_, other.dst_)
-		, weight_(other.weight_) {}
-		weighted_edge& operator=(const weighted_edge& other) {
-			if (this != &other) {
-				edge<N, E>::operator=(other);
-				weight_ = other.weight_;
-			}
-			return *this;
-		}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
@@ -136,15 +132,8 @@ namespace gdwg {
 		unweighted_edge(N src, N dst)
 		: edge<N, E>(src, dst) {}
 		~unweighted_edge() noexcept override = default; // virtual destructor
-
-		unweighted_edge(const unweighted_edge& other)
-		: edge<N, E>(other.src_, other.dst_) {}
-		unweighted_edge& operator=(const unweighted_edge& other) {
-			if (this != &other) {
-				edge<N, E>::operator=(other);
-			}
-			return *this;
-		}
+		unweighted_edge(const unweighted_edge& other) = default;
+		unweighted_edge& operator=(const unweighted_edge& other) = default;
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
