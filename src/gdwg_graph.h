@@ -2,6 +2,7 @@
 #define GDWG_GRAPH_H
 #include <initializer_list>
 #include <type_traits>
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <set>
@@ -87,6 +88,8 @@ namespace gdwg {
 		auto erase_node(N const& value) -> bool;
 
 		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
+
+		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
 	 private:
 		std::set<N> nodes_;
@@ -395,6 +398,33 @@ auto gdwg::unweighted_edge<N, E>::operator==(edge<N, E> const& other) const noex
 	if (auto o = dynamic_cast<unweighted_edge const*>(&other)) {
 		return this->src_ == o->src_ and this->dst_ == o->dst_;
 	}
+	return false;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
+	if (!is_node(src) || !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the "
+		                         "graph");
+	}
+
+	auto it = std::remove_if(edges_.begin(), edges_.end(), [&](const std::unique_ptr<edge>& e) {
+		auto nodes = e->get_nodes();
+		if (nodes.first == src && nodes.second == dst) {
+			if (weight and e->is_weighted()) {
+				return e->get_weight() == weight;
+			}
+			else if (!weight && !e->is_weighted()) {
+				return true;
+			}
+		}
+		return false;
+	});
+
+	if (it != edges_.end()) {
+		edges_.erase(it, edges_.end());
+		return true;
+	}
+
 	return false;
 }
 #endif // GDWG_GRAPH_H
