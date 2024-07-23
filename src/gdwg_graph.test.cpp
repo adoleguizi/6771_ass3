@@ -278,3 +278,22 @@ TEST_CASE("not_connected with dst->src edge") {
 
 	CHECK(g.is_connected("B", "A") == false);
 }
+TEST_CASE("Same weighted edges are equal") {
+	using weighted_edge = gdwg::weighted_edge<int, double>;
+	weighted_edge e1(1, 2, 3.5);
+	weighted_edge e2(1, 2, 3.5);
+	CHECK(e1.operator==(e2));
+}
+TEST_CASE("Different weighted edges are not equal (different destination)") {
+	using weighted_edge = gdwg::weighted_edge<int, double>;
+	weighted_edge e1(1, 2, 3.5);
+	weighted_edge e3(1, 3, 3.5);
+	CHECK(!e1.operator==(e3));
+}
+
+TEST_CASE("Different weighted edges are not equal (different weight)") {
+	using weighted_edge = gdwg::weighted_edge<int, double>;
+	weighted_edge e1(1, 2, 3.5);
+	weighted_edge e4(1, 2, 4.5);
+	CHECK(!e1.operator==(e4));
+}

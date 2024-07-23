@@ -5,7 +5,6 @@
 #include <memory>
 #include <optional>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -34,6 +33,8 @@ namespace gdwg {
 		virtual auto get_nodes() const noexcept -> std::pair<N, N> = 0;
 		// print_edge() const noexcept -> std::string;
 		virtual auto print_edge() const noexcept -> std::string = 0;
+		// operator ==
+		virtual auto operator==(edge const& other) const noexcept -> bool = 0;
 
 	 private:
 		N src_;
@@ -112,6 +113,7 @@ namespace gdwg {
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
 		auto print_edge() const noexcept -> std::string override;
+		auto operator==(edge<N, E> const& other) const noexcept -> bool override;
 
 	 private:
 		template<typename T>
@@ -144,6 +146,7 @@ namespace gdwg {
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
 		auto print_edge() const noexcept -> std::string override;
+		auto operator==(edge<N, E> const& other) const noexcept -> bool override;
 
 	 private:
 		template<typename T>
@@ -380,5 +383,18 @@ template<typename N, typename E>
 	}
 	return false;
 }
-
+template<typename N, typename E>
+auto gdwg::weighted_edge<N, E>::operator==(edge<N, E> const& other) const noexcept -> bool {
+	if (auto o = dynamic_cast<weighted_edge const*>(&other)) {
+		return this->src_ == o->src_ and this->dst_ == o->dst_ and this->weight_ == o->weight_;
+	}
+	return false;
+}
+template<typename N, typename E>
+auto gdwg::unweighted_edge<N, E>::operator==(edge<N, E> const& other) const noexcept -> bool {
+	if (auto o = dynamic_cast<unweighted_edge const*>(&other)) {
+		return this->src_ == o->src_ and this->dst_ == o->dst_;
+	}
+	return false;
+}
 #endif // GDWG_GRAPH_H
