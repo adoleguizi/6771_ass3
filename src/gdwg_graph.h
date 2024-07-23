@@ -56,8 +56,8 @@ namespace gdwg {
 		using edge = gdwg::edge<N, E>;
 		graph();
 		// Your member functions go here
-		template<typename InputIterator>
-		graph(InputIterator first, InputIterator last);
+		template<typename InputIt>
+		graph(InputIt first, InputIt last);
 
 		graph(std::initializer_list<N> il)
 		: graph(il.begin(), il.end()) { // delegate to range constructor
@@ -167,14 +167,14 @@ gdwg::graph<N, E>::graph()
 }
 
 template<typename N, typename E>
-template<typename InputIterator>
-gdwg::graph<N, E>::graph(InputIterator first, InputIterator last) {
+template<typename InputIt>
+gdwg::graph<N, E>::graph(InputIt first, InputIt last) {
 	static_assert(
-	    std::is_base_of<std::input_iterator_tag, typename std::iterator_traits<InputIterator>::iterator_category>::value,
+	    std::is_base_of<std::input_iterator_tag, typename std::iterator_traits<InputIt>::iterator_category>::value,
 	    "InputIt must be an input iterator");
 
 	// Check if the dereferenced iterator type is convertible to N
-	static_assert(std::is_convertible<typename std::iterator_traits<InputIterator>::value_type, N>::value,
+	static_assert(std::is_convertible<typename std::iterator_traits<InputIt>::value_type, N>::value,
 	              "The dereferenced iterator type must be convertible to N");
 	for (auto it = first; it != last; ++it) {
 		insert_node(*it);
