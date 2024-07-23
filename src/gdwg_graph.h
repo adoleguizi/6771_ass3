@@ -115,7 +115,7 @@ namespace gdwg {
 
 	 private:
 		template<typename T>
-		std::string to_string(const T& value) const {
+		auto to_string(const T& value) const -> std::string {
 			if constexpr (std::is_same_v<T, std::string>) {
 				return value;
 			}
@@ -147,7 +147,7 @@ namespace gdwg {
 
 	 private:
 		template<typename T>
-		std::string to_string(const T& value) const {
+		auto to_string(const T& value) const -> std::string {
 			if constexpr (std::is_same_v<T, std::string>) {
 				return value;
 			}
