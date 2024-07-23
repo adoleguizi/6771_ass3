@@ -409,11 +409,11 @@ auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> 
 
 	auto it = std::remove_if(edges_.begin(), edges_.end(), [&](const std::unique_ptr<edge>& e) {
 		auto nodes = e->get_nodes();
-		if (nodes.first == src && nodes.second == dst) {
+		if (nodes.first == src and nodes.second == dst) {
 			if (weight and e->is_weighted()) {
 				return e->get_weight() == weight;
 			}
-			else if (!weight && !e->is_weighted()) {
+			else if (!weight and !e->is_weighted()) {
 				return true;
 			}
 		}
