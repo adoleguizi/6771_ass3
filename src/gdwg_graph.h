@@ -46,6 +46,11 @@ namespace gdwg {
 	class graph {
 	 public:
 		using edge = gdwg::edge<N, E>;
+		using iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
+
+		auto get_edges() -> const std::vector<std::unique_ptr<edge>>& {
+			return edges_;
+		}
 		graph();
 		// Your member functions go here
 		template<typename InputIt>
@@ -456,8 +461,7 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 	return result;
 }
 template<typename N, typename E>
-[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const ->
-    typename std::vector<std::unique_ptr<edge>>::const_iterator {
+[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const -> iterator {
 	return std::find_if(edges_.cbegin(), edges_.cend(), [&src, &dst, &weight](const std::unique_ptr<edge>& e) {
 		if (e->get_nodes() != std::make_pair(src, dst)) {
 			return false;
