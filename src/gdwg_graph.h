@@ -21,7 +21,7 @@ namespace gdwg {
 	template<typename N, typename E>
 	class edge {
 	 public:
-		virtual ~edge() = 0;
+		virtual ~edge() = default;
 
 		virtual std::optional<E> get_weight() const = 0;
 		// is_weighted() const noexcept -> bool;
@@ -49,8 +49,6 @@ namespace gdwg {
 		friend class weighted_edge<N, E>;
 		friend class unweighted_edge<N, E>;
 	};
-	template<typename N, typename E>
-	inline edge<N, E>::~edge() = default;
 
 	template<typename N, typename E>
 	class graph {
