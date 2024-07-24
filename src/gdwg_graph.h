@@ -407,7 +407,9 @@ auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> 
 }
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
-	return std::vector<N>(nodes_.begin(), nodes_.end());
+	auto result = std::vector<N>(nodes_.begin(), nodes_.end());
+	std::sort(result.begin(), result.end());
+	return result;
 }
 template<typename N, typename E>
 auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
