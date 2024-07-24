@@ -3,6 +3,7 @@
 #include <initializer_list>
 #include <type_traits>
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -83,10 +84,14 @@ namespace gdwg {
 		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
 		// get all edges from src to dst according to the order
 		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
+		// find the edge from src to dst return iterator
+		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const ->
+		    typename std::vector<std::unique_ptr<edge>>::const_iterator;
 
 	 private:
 		std::set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
+		// std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
 	};
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
@@ -449,5 +454,20 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 		return *weighted_a->get_weight() < *weighted_b->get_weight();
 	});
 	return result;
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const ->
+    typename std::vector<std::unique_ptr<edge>>::const_iterator {
+	return std::find_if(edges_.cbegin(), edges_.cend(), [&src, &dst, &weight](const std::unique_ptr<edge>& e) {
+		if (e->get_nodes() != std::make_pair(src, dst)) {
+			return false;
+		}
+		if (weight.has_value()) {
+			return e->get_weight() == weight;
+		}
+		else {
+			return !e->get_weight().has_value();
+		}
+	});
 }
 #endif // GDWG_GRAPH_H
