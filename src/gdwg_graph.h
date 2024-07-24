@@ -81,8 +81,8 @@ namespace gdwg {
 		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
 		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
-		//
-		// [[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
+		// get all edges from src to dst according to the order
+		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
 
 	 private:
 		std::set<N> nodes_;
@@ -409,8 +409,43 @@ template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
 	return std::vector<N>(nodes_.begin(), nodes_.end());
 }
-// template <typename N, typename E>
-// auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const-> std::vector<std::unique_ptr<edge>> {
-//
-// }
+template<typename N, typename E>
+auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
+	if (!is_node(src) or !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
+	}
+	// return copy of the edges
+	auto result = std::vector<std::unique_ptr<edge>>();
+	for (const auto& e : edges_) {
+		if (e->get_nodes() == std::make_pair(src, dst)) {
+			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+				result.push_back(std::make_unique<weighted_edge<N, E>>(*we));
+			}
+			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+				result.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+			}
+		}
+	}
+	// first unweighted edge then weighted edge in acsedning order
+	std::sort(result.begin(), result.end(), [](const std::unique_ptr<edge>& a, const std::unique_ptr<edge>& b) {
+		auto a_nodes = a->get_nodes();
+		auto b_nodes = b->get_nodes();
+		if (a_nodes.first != b_nodes.first) {
+			return a_nodes.first < b_nodes.first;
+		}
+		if (a_nodes.second != b_nodes.second) {
+			return a_nodes.second < b_nodes.second;
+		}
+		auto weighted_a = dynamic_cast<weighted_edge<N, E>*>(a.get());
+		auto weighted_b = dynamic_cast<weighted_edge<N, E>*>(b.get());
+		if (!weighted_a) {
+			return true;
+		}
+		if (!weighted_b) {
+			return false;
+		}
+		return *weighted_a->get_weight() < *weighted_b->get_weight();
+	});
+	return result;
+}
 #endif // GDWG_GRAPH_H
