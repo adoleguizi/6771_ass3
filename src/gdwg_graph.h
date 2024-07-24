@@ -48,9 +48,9 @@ namespace gdwg {
 		using edge = gdwg::edge<N, E>;
 		using iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
 
-		auto get_edges() -> const std::vector<std::unique_ptr<edge>>& {
-			return edges_;
-		}
+		// auto get_edges() -> const std::vector<std::unique_ptr<edge>>& {
+		// 	return edges_;
+		// }
 		graph();
 		// Your member functions go here
 		template<typename InputIt>
@@ -93,9 +93,12 @@ namespace gdwg {
 		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const ->
 		    typename std::vector<std::unique_ptr<edge>>::const_iterator;
 
-	 private:
+	 protected:
 		std::set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
+		auto get_edges() const -> const std::vector<std::unique_ptr<edge>>& {
+			return edges_;
+		}
 		// std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
 	};
 	template<typename N, typename E>
@@ -154,7 +157,11 @@ namespace gdwg {
 	};
 
 } // namespace gdwg
-
+template<typename N, typename E>
+class TestableGraph : public gdwg::graph<N, E> {
+ public:
+	using gdwg::graph<N, E>::get_edges; // make protected member get_edges public
+};
 template<typename N, typename E>
 gdwg::graph<N, E>::graph()
 : nodes_()
