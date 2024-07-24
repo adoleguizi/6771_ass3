@@ -372,3 +372,46 @@ TEST_CASE("erase_edge with unweighted edge") {
 	CHECK(g.is_connected("A", "B") == false);
 	CHECK(g.erase_edge("A", "B") == false); // Edge already removed
 }
+TEST_CASE("nodes function returns empty vector for empty graph") {
+	auto g = gdwg::graph<int, int>{};
+	auto nodes = g.nodes();
+	CHECK(nodes.empty());
+}
+
+TEST_CASE("nodes function returns single node") {
+	auto g = gdwg::graph<int, int>{};
+	g.insert_node(1);
+	auto nodes = g.nodes();
+	CHECK(nodes.size() == 1);
+	CHECK(nodes[0] == 1);
+}
+TEST_CASE("nodes function returns multiple nodes in sorted order") {
+	auto g = gdwg::graph<int, int>{};
+	g.insert_node(3);
+	g.insert_node(1);
+	g.insert_node(2);
+	auto nodes = g.nodes();
+	CHECK(nodes.size() == 3);
+	CHECK(nodes[0] == 1);
+	CHECK(nodes[1] == 2);
+	CHECK(nodes[2] == 3);
+}
+TEST_CASE("nodes function with duplicate nodes") {
+	auto g = gdwg::graph<int, int>{};
+	g.insert_node(1);
+	g.insert_node(1); // Attempt to insert duplicate node
+	auto nodes = g.nodes();
+	CHECK(nodes.size() == 1);
+	CHECK(nodes[0] == 1);
+}
+TEST_CASE("nodes function with string nodes") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("apple");
+	g.insert_node("banana");
+	g.insert_node("cherry");
+	auto nodes = g.nodes();
+	CHECK(nodes.size() == 3);
+	CHECK(nodes[0] == "apple");
+	CHECK(nodes[1] == "banana");
+	CHECK(nodes[2] == "cherry");
+}
