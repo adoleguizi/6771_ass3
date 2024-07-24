@@ -15,10 +15,6 @@ namespace gdwg {
 	class graph;
 
 	template<typename N, typename E>
-	class weighted_edge;
-	template<typename N, typename E>
-	class unweighted_edge;
-	template<typename N, typename E>
 	class edge {
 	 public:
 		virtual ~edge() = default;
@@ -38,18 +34,11 @@ namespace gdwg {
 		edge& operator=(const edge& other) = default;
 		edge(edge&& other) noexcept = default;
 		edge& operator=(edge&& other) noexcept = default;
-		edge(N src, N dst)
-		: src_(src)
-		, dst_(dst) {}
+		edge() = default;
 
 	 private:
-		N src_;
-		N dst_;
-		// You may need to add data members and member functions
 		template<typename NW, typename EW>
 		friend class graph;
-		friend class weighted_edge<N, E>;
-		friend class unweighted_edge<N, E>;
 	};
 
 	template<typename N, typename E>
@@ -92,6 +81,8 @@ namespace gdwg {
 		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
 		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
+		//
+		// [[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
 
 	 private:
 		std::set<N> nodes_;
@@ -101,7 +92,9 @@ namespace gdwg {
 	class weighted_edge : public edge<N, E> {
 	 public:
 		weighted_edge(N src, N dst, E weight)
-		: edge<N, E>(src, dst)
+		: edge<N, E>()
+		, src_(src)
+		, dst_(dst)
 		, weight_(weight) {}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
@@ -110,6 +103,8 @@ namespace gdwg {
 		auto operator==(edge<N, E> const& other) const noexcept -> bool override;
 
 	 private:
+		N src_;
+		N dst_;
 		template<typename T>
 		auto to_string(const T& value) const -> std::string {
 			if constexpr (std::is_same_v<T, std::string>) {
@@ -125,7 +120,9 @@ namespace gdwg {
 	class unweighted_edge : public edge<N, E> {
 	 public:
 		unweighted_edge(N src, N dst)
-		: edge<N, E>(src, dst) {}
+		: edge<N, E>()
+		, src_(src)
+		, dst_(dst) {}
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
@@ -133,6 +130,8 @@ namespace gdwg {
 		auto operator==(edge<N, E> const& other) const noexcept -> bool override;
 
 	 private:
+		N src_;
+		N dst_;
 		template<typename T>
 		auto to_string(const T& value) const -> std::string {
 			if constexpr (std::is_same_v<T, std::string>) {
@@ -410,4 +409,8 @@ template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
 	return std::vector<N>(nodes_.begin(), nodes_.end());
 }
+// template <typename N, typename E>
+// auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const-> std::vector<std::unique_ptr<edge>> {
+//
+// }
 #endif // GDWG_GRAPH_H
