@@ -95,6 +95,8 @@ namespace gdwg {
 
 		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
+		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
+
 	 private:
 		std::set<N> nodes_;
 		std::vector<std::unique_ptr<edge>> edges_;
@@ -408,12 +410,14 @@ auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> 
 		}
 		return false;
 	});
-
 	if (it != edges_.end()) {
 		edges_.erase(it, edges_.end());
 		return true;
 	}
-
 	return false;
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
+	return std::vector<N>(nodes_.begin(), nodes_.end());
 }
 #endif // GDWG_GRAPH_H
