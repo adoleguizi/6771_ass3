@@ -36,6 +36,8 @@ namespace gdwg {
 	 protected:
 		edge(const edge& other) = default;
 		edge& operator=(const edge& other) = default;
+		edge(edge&& other) noexcept = default;
+		edge& operator=(edge&& other) noexcept = default;
 		edge(N src, N dst)
 		: src_(src)
 		, dst_(dst) {}
@@ -101,9 +103,6 @@ namespace gdwg {
 		weighted_edge(N src, N dst, E weight)
 		: edge<N, E>(src, dst)
 		, weight_(weight) {}
-		weighted_edge(const weighted_edge& other) = default;
-		weighted_edge& operator=(const weighted_edge& other) = default;
-		~weighted_edge() noexcept override = default;
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
@@ -127,8 +126,6 @@ namespace gdwg {
 	 public:
 		unweighted_edge(N src, N dst)
 		: edge<N, E>(src, dst) {}
-		unweighted_edge(const unweighted_edge& other) = default;
-		unweighted_edge& operator=(const unweighted_edge& other) = default;
 		auto get_weight() const noexcept -> std::optional<E> override;
 		auto is_weighted() const noexcept -> bool override;
 		auto get_nodes() const noexcept -> std::pair<N, N> override;
