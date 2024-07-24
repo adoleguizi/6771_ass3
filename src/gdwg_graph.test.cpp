@@ -442,3 +442,33 @@ TEST_CASE("edges function returns all edges from src to dst in correct order") {
 	CHECK(edges[2]->get_weight() == 2);
 	CHECK(edges[3]->get_weight() == 3);
 }
+TEST_CASE("edges function handles self loops") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_edge("A", "A", 4);
+	g.insert_edge("A", "A", 2);
+	g.insert_edge("A", "A", 3);
+	g.insert_edge("A", "A"); // Unweighted edge
+
+	auto edges = g.edges("A", "A");
+	CHECK(edges.size() == 4);
+	CHECK(!edges[0]->get_weight().has_value()); // Unweighted edge
+	CHECK(edges[1]->get_weight() == 2);
+	CHECK(edges[2]->get_weight() == 3);
+	CHECK(edges[3]->get_weight() == 4);
+}
+TEST_CASE("edges function returns copies of edges") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "B", 2);
+	auto edges = g.edges("A", "B");
+	CHECK(edges.size() == 2);
+	// Modify the original edges in the graph
+	g.erase_edge("A", "B", 1);
+	g.erase_edge("A", "B", 2);
+	// Ensure the edges returned by the function are unaffected
+	CHECK(edges[0]->get_weight() == 1);
+	CHECK(edges[1]->get_weight() == 2);
+}
