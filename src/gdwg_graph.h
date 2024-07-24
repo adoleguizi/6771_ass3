@@ -10,11 +10,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-// TODO: Make both graph and edge generic
-//       ... this won't just compile
-//       straight away
 namespace gdwg {
-	// 前向声明graph模板，以便在edge中使用
 	template<typename N, typename E>
 	class graph;
 
@@ -133,7 +129,6 @@ namespace gdwg {
 	 public:
 		unweighted_edge(N src, N dst)
 		: edge<N, E>(src, dst) {}
-		~unweighted_edge() noexcept override = default; // virtual destructor
 		unweighted_edge(const unweighted_edge& other) = default;
 		unweighted_edge& operator=(const unweighted_edge& other) = default;
 		auto get_weight() const noexcept -> std::optional<E> override;
