@@ -491,3 +491,26 @@ TEST_CASE("Find a weighted edge with different weight") {
 	auto it = g.find("A", "B", 10);
 	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
 }
+TEST_CASE("Find among multiple edges") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+	g.insert_edge("A", "B");
+	g.insert_edge("A", "B", 5);
+	g.insert_edge("A", "C", 10);
+
+	auto it = g.find("A", "B", 5);
+	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
+	CHECK((*it)->is_weighted());
+	CHECK((*it)->get_weight() == 5);
+
+	it = g.find("A", "C", 10);
+	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
+	CHECK((*it)->is_weighted());
+	CHECK((*it)->get_weight() == 10);
+
+	it = g.find("A", "B");
+	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
+	CHECK(!(*it)->is_weighted());
+}
