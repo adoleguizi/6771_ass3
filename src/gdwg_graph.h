@@ -89,6 +89,8 @@ namespace gdwg {
 
 		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
 
+		// [[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
+
 	 protected:
 		std::set<N> nodes_;
 		template<typename NW, typename EW>
@@ -435,7 +437,7 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 		throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
 	}
 	// return copy of the edges
-	auto result = std::vector<edge>();
+	auto result = std::vector<std::unique_ptr<edge>>();
 	auto it = edges_.find(src);
 	if (it != edges_.end()) {
 		for (const auto& e : it->second) {
@@ -459,13 +461,15 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 		if (a_nodes.second != b_nodes.second) {
 			return a_nodes.second < b_nodes.second;
 		}
-		if (!a->is_weighted()) {
+		auto weighted_a = dynamic_cast<weighted_edge<N, E>*>(a.get());
+		auto weighted_b = dynamic_cast<weighted_edge<N, E>*>(b.get());
+		if (!weighted_a) {
 			return true;
 		}
-		if (!b->is_weighted()) {
+		if (!weighted_b) {
 			return false;
 		}
-		return *a.get_weight() < *b.get_weight();
+		return *weighted_a->get_weight() < *weighted_b->get_weight();
 	});
 	return result;
 }
