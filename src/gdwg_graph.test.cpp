@@ -448,3 +448,8 @@ TEST_CASE("edges function handles self loops") {
 	CHECK(edges[2]->get_weight() == 3);
 	CHECK(edges[3]->get_weight() == 4);
 }
+TEST_CASE("Find in an empty graph") {
+	gdwg::graph<std::string, int> g;
+	auto it = g.find("A", "B");
+	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
+}
