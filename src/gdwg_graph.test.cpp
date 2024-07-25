@@ -396,3 +396,14 @@ TEST_CASE("nodes function with duplicate nodes") {
 	CHECK(nodes.size() == 1);
 	CHECK(nodes[0] == 1);
 }
+TEST_CASE("nodes function with string nodes") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("banana");
+	g.insert_node("apple");
+	g.insert_node("cherry");
+	auto nodes = g.nodes();
+	CHECK(nodes.size() == 3);
+	CHECK(nodes[0] == "apple");
+	CHECK(nodes[1] == "banana");
+	CHECK(nodes[2] == "cherry");
+}
