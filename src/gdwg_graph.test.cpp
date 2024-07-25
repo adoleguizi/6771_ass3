@@ -72,6 +72,32 @@ TEST_CASE("Move constructor: Original object is empty after move") {
 	auto g2 = std::move(g1);
 	CHECK(g1.empty());
 }
+TEST_CASE("Move assignment invalidates iterators of the assigned-to graph") {
+	auto g1 = gdwg::graph<std::string, int>{};
+	g1.insert_node("A");
+	g1.insert_node("B");
+	g1.insert_edge("A", "B", 1);
+	auto g2 = gdwg::graph<std::string, int>{};
+	g2.insert_node("C");
+	g2.insert_node("D");
+	auto it_g2 = g2.find("C", "D");
+	// Move assign g1 to g2
+	g2 = std::move(g1);
+	// Check iterator of g2 is invalidated
+	CHECK(it_g2 == gdwg::TestHelper<std::string, int>::get_end_it(g2));
+}
+TEST_CASE("Move assignment keeps iterators of the moved-from graph valid") {
+	auto g1 = gdwg::graph<std::string, int>{};
+	g1.insert_node("A");
+	g1.insert_node("B");
+	g1.insert_edge("A", "B", 1);
+	auto it_g1 = g1.find("A", "B", 1);
+	auto g2 = gdwg::graph<std::string, int>{};
+	g2.insert_node("C");
+	g2.insert_node("D");
+	g2 = std::move(g1);
+	CHECK(it_g1 != gdwg::TestHelper<std::string, int>::get_end_it(g2));
+}
 TEST_CASE("replace node with a new node") {
 	auto g = gdwg::graph<int, std::string>{1, 2, 3};
 	REQUIRE(g.is_node(1));
