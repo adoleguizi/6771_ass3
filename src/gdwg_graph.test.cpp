@@ -47,16 +47,54 @@ TEST_CASE("graph copy constructor and modifying original graph") {
 	CHECK(g2.is_connected(1, 2));
 	CHECK_FALSE(g2.is_connected(2, 3));
 }
+TEST_CASE("Copy assignment with empty graph") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_node(3);
+	g2.insert_edge(1, 2, "weight1");
+	g2 = g1;
+	CHECK(g2.empty());
+}
+TEST_CASE("Copy assignment with multiple nodes and edges") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_node(3);
+	g1.insert_edge(1, 2, "weight1");
+	g1.insert_edge(2, 3, "weight2");
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2 = g1;
+	CHECK(g2.is_node(1));
+	CHECK(g2.is_node(2));
+	CHECK(g2.is_node(3));
+	CHECK(g2.insert_edge(1, 2, "weight1") == false);
+	CHECK(g2.insert_edge(2, 3, "weight2") == false);
+	CHECK(g2.is_connected(1, 2));
+	CHECK(g2.is_connected(2, 3));
+}
+TEST_CASE("Copy assignment operator with self-assignment") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "weight1");
+	// Use a temporary variable to avoid self-assignment warning
+	auto temp = g;
+	g = temp;
+	CHECK(g.is_node(1));
+	CHECK(g.is_node(2));
+	CHECK(g.is_connected(1, 2));
+	CHECK(g.find(1, 2, "weight1") != gdwg::TestHelper<int, std::string>::get_end_it(g));
+}
 TEST_CASE("insert node and check node") {
 	auto g = gdwg::graph<int, std::string>{};
 	auto n1 = 1;
 	auto n2 = 2;
 	auto n3 = 3;
-
 	g.insert_node(n1);
 	g.insert_node(n2);
 	g.insert_node(n3);
-
 	CHECK(g.is_node(n1));
 	CHECK(g.is_node(n2));
 	CHECK(g.is_node(n3));
