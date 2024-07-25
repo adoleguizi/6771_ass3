@@ -87,6 +87,8 @@ namespace gdwg {
 
 		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
 
+		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
+
 	 protected:
 		std::set<N> nodes_;
 		template<typename NW, typename EW>
@@ -425,6 +427,46 @@ template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
 	auto result = std::vector<N>(nodes_.begin(), nodes_.end());
 	std::sort(result.begin(), result.end());
+	return result;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
+	if (!is_node(src) or !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
+	}
+	// return copy of the edges
+	auto result = std::vector<edge>();
+	auto it = edges_.find(src);
+	if (it != edges_.end()) {
+		for (const auto& e : it->second) {
+			if (e->get_nodes() == std::make_pair(src, dst)) {
+				if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+					result.push_back(std::make_unique<weighted_edge<N, E>>(*we));
+				}
+				else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+					result.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+				}
+			}
+		}
+	}
+	// first unweighted edge then weighted edge in acsedning order
+	std::sort(result.begin(), result.end(), [](const std::unique_ptr<edge>& a, const std::unique_ptr<edge>& b) {
+		auto a_nodes = a->get_nodes();
+		auto b_nodes = b->get_nodes();
+		if (a_nodes.first != b_nodes.first) {
+			return a_nodes.first < b_nodes.first;
+		}
+		if (a_nodes.second != b_nodes.second) {
+			return a_nodes.second < b_nodes.second;
+		}
+		if (!a->is_weighted()) {
+			return true;
+		}
+		if (!b->is_weighted()) {
+			return false;
+		}
+		return *a.get_weight() < *b.get_weight();
+	});
 	return result;
 }
 #endif // GDWG_GRAPH_H
