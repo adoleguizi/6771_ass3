@@ -157,6 +157,29 @@ TEST_CASE("merge_replace_node with self loop") {
 	CHECK(g.insert_edge("B", "B", 1) == false);
 	CHECK(g.insert_edge("B", "B", 2) == false);
 }
+TEST_CASE("Print unweighted edge") {
+	gdwg::unweighted_edge<std::string, int> e("A", "B");
+	auto result = e.print_edge();
+	std::string expected = "A -> B | U";
+	CHECK(result == expected);
+}
+TEST_CASE("Print weighted edge") {
+	gdwg::weighted_edge<std::string, int> e("A", "B", 5);
+	auto result = e.print_edge();
+	std::string expected = "A -> B | W | 5";
+	CHECK(result == expected);
+}
+TEST_CASE("Print edge with different types") {
+	gdwg::unweighted_edge<int, double> e1(1, 2);
+	auto result1 = e1.print_edge();
+	std::string expected1 = "1 -> 2 | U";
+	CHECK(result1 == expected1);
+
+	gdwg::weighted_edge<int, double> e2(1, 2, 3.14);
+	auto result2 = e2.print_edge();
+	std::string expected2 = "1 -> 2 | W | 3.14";
+	CHECK(result2 == expected2);
+}
 TEST_CASE("empty basic test") {
 	auto g = gdwg::graph<std::string, int>{};
 	CHECK(g.empty() == true);

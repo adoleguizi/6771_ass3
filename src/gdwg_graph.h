@@ -3,10 +3,12 @@
 #include <initializer_list>
 #include <type_traits>
 #include <algorithm>
+#include <iomanip>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -133,6 +135,11 @@ namespace gdwg {
 		auto to_string(const T& value) const -> std::string {
 			if constexpr (std::is_same_v<T, std::string>) {
 				return value;
+			}
+			else if constexpr (std::is_floating_point_v<T>) {
+				std::ostringstream oss;
+				oss << std::fixed << std::setprecision(2) << value;
+				return oss.str();
 			}
 			else {
 				return std::to_string(value);
@@ -271,7 +278,7 @@ auto gdwg::unweighted_edge<N, E>::get_nodes() const noexcept -> std::pair<N, N> 
 }
 template<typename N, typename E>
 auto gdwg::weighted_edge<N, E>::print_edge() const noexcept -> std::string {
-	return to_string(this->src_) + " -> " + to_string(this->dst_) + " | W |  " + to_string(weight_);
+	return to_string(this->src_) + " -> " + to_string(this->dst_) + " | W | " + to_string(weight_);
 }
 template<typename N, typename E>
 auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
