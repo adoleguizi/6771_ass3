@@ -180,6 +180,25 @@ TEST_CASE("Print edge with different types") {
 	std::string expected2 = "1 -> 2 | W | 3.14";
 	CHECK(result2 == expected2);
 }
+TEST_CASE("Test is_weighted for weighted edges") {
+	gdwg::weighted_edge<int, double> we1(1, 2, 3.14);
+	auto result1 = we1.is_weighted();
+	CHECK(result1 == true);
+
+	gdwg::weighted_edge<std::string, int> we2("A", "B", 10);
+	auto result2 = we2.is_weighted();
+	CHECK(result2 == true);
+}
+
+TEST_CASE("Test is_weighted for unweighted edges") {
+	gdwg::unweighted_edge<int, double> ue1(1, 2);
+	auto result1 = ue1.is_weighted();
+	CHECK(result1 == false);
+
+	gdwg::unweighted_edge<std::string, int> ue2("A", "B");
+	auto result2 = ue2.is_weighted();
+	CHECK(result2 == false);
+}
 TEST_CASE("empty basic test") {
 	auto g = gdwg::graph<std::string, int>{};
 	CHECK(g.empty() == true);
