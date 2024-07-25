@@ -453,3 +453,41 @@ TEST_CASE("Find in an empty graph") {
 	auto it = g.find("A", "B");
 	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
 }
+TEST_CASE("Find an existing unweighted edge") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B");
+	auto it = g.find("A", "B");
+	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
+	CHECK(!(*it)->is_weighted());
+}
+TEST_CASE("Find a non-existing edge") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B");
+
+	auto it = g.find("B", "A");
+	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
+}
+TEST_CASE("Find an existing weighted edge") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 5);
+
+	auto it = g.find("A", "B", 5);
+	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
+	CHECK((*it)->is_weighted());
+	CHECK((*it)->get_weight() == 5);
+}
+TEST_CASE("Find a weighted edge with different weight") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 5);
+
+	auto it = g.find("A", "B", 10);
+	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
+}
