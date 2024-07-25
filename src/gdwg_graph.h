@@ -92,6 +92,8 @@ namespace gdwg {
 		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const ->
 		    typename std::vector<std::unique_ptr<edge>>::const_iterator;
 
+		[[nodiscard]] auto connections(N const& src) -> std::vector<N>;
+
 	 protected:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
@@ -500,5 +502,20 @@ template<typename N, typename E>
 	}
 	// 返回图的结束迭代器
 	return empty_edges_.end();
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::connections(N const& src) -> std::vector<N> {
+	if (!is_node(src)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+	}
+	auto it = edges_.find(src);
+	if (it == edges_.end()) {
+		return {};
+	}
+	auto connected_nodes = std::set<N>();
+	for (const auto& e : it->second) {
+		connected_nodes.insert(e->get_nodes().second);
+	}
+	return std::vector<N>(connected_nodes.begin(), connected_nodes.end());
 }
 #endif // GDWG_GRAPH_H

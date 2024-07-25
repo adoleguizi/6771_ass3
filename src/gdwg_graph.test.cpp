@@ -514,3 +514,33 @@ TEST_CASE("Find among multiple edges") {
 	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
 	CHECK(!(*it)->is_weighted());
 }
+TEST_CASE("Connections with a non-existing node") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	CHECK_THROWS_WITH(g.connections("B"), "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
+}
+TEST_CASE("Connections with no outgoing edges") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	auto result = g.connections("A");
+	CHECK(result.empty());
+}
+TEST_CASE("Connections with one outgoing edge") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	auto result = g.connections("A");
+	std::vector<std::string> expected = {"B"};
+	CHECK(result == expected);
+}
+TEST_CASE("Connections with duplicate outgoing edges") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "B", 2);
+	auto result = g.connections("A");
+	std::vector<std::string> expected = {"B"};
+	CHECK(result == expected);
+}
