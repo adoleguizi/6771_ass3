@@ -83,6 +83,8 @@ namespace gdwg {
 
 		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
 
+		// auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+
 	 protected:
 		std::set<N> nodes_;
 		template<typename NW, typename EW>
