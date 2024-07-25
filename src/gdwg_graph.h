@@ -81,23 +81,11 @@ namespace gdwg {
 
 		auto erase_node(N const& value) -> bool;
 
-		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
-
-		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
-
-		[[nodiscard]] auto nodes() const noexcept -> std::vector<N>;
-		// get all edges from src to dst according to the order
-		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
-		// find the edge from src to dst return iterator
-		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const ->
-		    typename std::vector<std::unique_ptr<edge>>::const_iterator;
-
 	 protected:
 		std::set<N> nodes_;
-		std::vector<std::unique_ptr<edge>> edges_;
 		template<typename NW, typename EW>
 		friend class TestHelper;
-		// std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
+		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
 	};
 	template<typename N, typename E>
 	class TestHelper {
@@ -204,12 +192,14 @@ template<typename N, typename E>
 gdwg::graph<N, E>::graph(graph const& other) {
 	nodes_ = other.nodes_;
 	// might modify for insert edge
-	for (const auto& e : other.edges_) {
-		if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
-			edges_.push_back(std::make_unique<weighted_edge<N, E>>(*we));
-		}
-		else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
-			edges_.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+	for (const auto& [src, edges] : other.edges_) {
+		for (const auto& e : edges) {
+			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+				edges_[src].push_back(std::make_unique<weighted_edge<N, E>>(*we));
+			}
+			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+				edges_[src].push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+			}
 		}
 	}
 }
@@ -222,12 +212,14 @@ auto gdwg::graph<N, E>::operator=(graph const& other) -> graph& {
 		// deep copy nodes
 		nodes_ = other.nodes_;
 		// deep copy edges
-		for (const auto& edge : other.edges_) {
-			if (auto we = dynamic_cast<weighted_edge<N, E>*>(edge.get())) {
-				edges_.push_back(std::make_unique<weighted_edge<N, E>>(*we));
-			}
-			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(edge.get())) {
-				edges_.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+		for (const auto& [src, edges] : other.edges_) {
+			for (const auto& e : edges) {
+				if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+					edges_[src].push_back(std::make_unique<weighted_edge<N, E>>(*we));
+				}
+				else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+					edges_[src].push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+				}
 			}
 		}
 	}
@@ -281,7 +273,7 @@ auto gdwg::graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E>
 		                         "exist");
 	}
 	// no same weight in edge
-	for (const auto& e : edges_) {
+	for (const auto& e : edges_[src]) {
 		if (e->get_nodes() == std::make_pair(src, dst)) {
 			if (weight and e->get_weight() == weight) {
 				return false;
@@ -292,10 +284,10 @@ auto gdwg::graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E>
 		}
 	}
 	if (weight) {
-		edges_.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, *weight));
+		edges_[src].push_back(std::make_unique<weighted_edge<N, E>>(src, dst, *weight));
 	}
 	else {
-		edges_.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
+		edges_[src].push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
 	}
 	return true;
 }
@@ -319,26 +311,28 @@ auto gdwg::graph<N, E>::merge_replace_node(N const& old_data, N const& new_data)
 		throw std::runtime_error("Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if they don't "
 		                         "exist in the graph");
 	}
-	std::vector<std::unique_ptr<edge>> new_edges;
+	auto new_edges = std::map<N, std::vector<std::unique_ptr<edge>>>{};
 	// Iterate through current edges and replace old_data with new_data
-	for (const auto& e : edges_) {
-		auto nodes = e->get_nodes();
-		N src = (nodes.first == old_data) ? new_data : nodes.first;
-		N dst = (nodes.second == old_data) ? new_data : nodes.second;
-
-		bool duplicate = false;
-		for (const auto& edge : new_edges) {
-			if (edge->get_nodes() == std::make_pair(src, dst) and edge->get_weight() == e->get_weight()) {
-				duplicate = true;
-				break;
+	for (auto& [src, edges] : edges_) {
+		for (const auto& e : edges) {
+			auto nodes = e->get_nodes();
+			N new_src = (nodes.first == old_data) ? new_data : nodes.first;
+			N new_dst = (nodes.second == old_data) ? new_data : nodes.second;
+			bool duplicate = false;
+			for (const auto& edge : new_edges[new_src]) {
+				if (edge->get_nodes() == std::make_pair(new_src, new_dst) && edge->get_weight() == e->get_weight()) {
+					duplicate = true;
+					break;
+				}
 			}
-		}
-		if (!duplicate) {
-			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
-				new_edges.push_back(std::make_unique<weighted_edge<N, E>>(src, dst, *we->get_weight()));
-			}
-			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
-				new_edges.push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
+			if (!duplicate) {
+				if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+					new_edges[new_src].push_back(
+					    std::make_unique<weighted_edge<N, E>>(new_src, new_dst, *we->get_weight()));
+				}
+				else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+					new_edges[new_src].push_back(std::make_unique<unweighted_edge<N, E>>(new_src, new_dst));
+				}
 			}
 		}
 	}
@@ -355,34 +349,18 @@ auto gdwg::graph<N, E>::erase_node(N const& value) -> bool {
 		return false;
 	}
 	// first remove the edge that contains the node might src or dest
-	auto it = edges_.begin();
-	while (it != edges_.end()) {
-		auto nodes = (*it)->get_nodes();
-		if (nodes.first == value or nodes.second == value) {
-			it = edges_.erase(it);
-		}
-		// if the node is not in the edge, just move to the next edge oterwise deadloop
-		else {
-			++it;
-		}
+	for (auto& [src, edges] : edges_) {
+		edges.erase(std::remove_if(
+		                edges.begin(),
+		                edges.end(),
+		                [&](auto const& e) { return e->get_nodes().first == value or e->get_nodes().second == value; }),
+		            edges.end());
 	}
 	// remove the node
 	nodes_.erase(value);
 	return true;
 }
-template<typename N, typename E>
-[[nodiscard]] auto gdwg::graph<N, E>::is_connected(N const& src, N const& dst) -> bool {
-	if (!is_node(src) || !is_node(dst)) {
-		throw std::runtime_error("Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't exist in the "
-		                         "graph");
-	}
-	for (const auto& e : edges_) {
-		if (e->get_nodes() == std::make_pair(src, dst)) {
-			return true;
-		}
-	}
-	return false;
-}
+
 template<typename N, typename E>
 auto gdwg::weighted_edge<N, E>::operator==(edge<N, E> const& other) const noexcept -> bool {
 	if (auto o = dynamic_cast<weighted_edge const*>(&other)) {
@@ -397,88 +375,5 @@ auto gdwg::unweighted_edge<N, E>::operator==(edge<N, E> const& other) const noex
 	}
 	return false;
 }
-template<typename N, typename E>
-auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
-	if (!is_node(src) || !is_node(dst)) {
-		throw std::runtime_error("Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the "
-		                         "graph");
-	}
 
-	auto it = std::remove_if(edges_.begin(), edges_.end(), [&](const std::unique_ptr<edge>& e) {
-		auto nodes = e->get_nodes();
-		if (nodes.first == src and nodes.second == dst) {
-			if (weight and e->is_weighted()) {
-				return e->get_weight() == weight;
-			}
-			else if (!weight and !e->is_weighted()) {
-				return true;
-			}
-		}
-		return false;
-	});
-	if (it != edges_.end()) {
-		edges_.erase(it, edges_.end());
-		return true;
-	}
-	return false;
-}
-template<typename N, typename E>
-[[nodiscard]] auto gdwg::graph<N, E>::nodes() const noexcept -> std::vector<N> {
-	auto result = std::vector<N>(nodes_.begin(), nodes_.end());
-	std::sort(result.begin(), result.end());
-	return result;
-}
-template<typename N, typename E>
-auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>> {
-	if (!is_node(src) or !is_node(dst)) {
-		throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src or dst node don't exist in the graph");
-	}
-	// return copy of the edges
-	auto result = std::vector<std::unique_ptr<edge>>();
-	for (const auto& e : edges_) {
-		if (e->get_nodes() == std::make_pair(src, dst)) {
-			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
-				result.push_back(std::make_unique<weighted_edge<N, E>>(*we));
-			}
-			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
-				result.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
-			}
-		}
-	}
-	// first unweighted edge then weighted edge in acsedning order
-	std::sort(result.begin(), result.end(), [](const std::unique_ptr<edge>& a, const std::unique_ptr<edge>& b) {
-		auto a_nodes = a->get_nodes();
-		auto b_nodes = b->get_nodes();
-		if (a_nodes.first != b_nodes.first) {
-			return a_nodes.first < b_nodes.first;
-		}
-		if (a_nodes.second != b_nodes.second) {
-			return a_nodes.second < b_nodes.second;
-		}
-		auto weighted_a = dynamic_cast<weighted_edge<N, E>*>(a.get());
-		auto weighted_b = dynamic_cast<weighted_edge<N, E>*>(b.get());
-		if (!weighted_a) {
-			return true;
-		}
-		if (!weighted_b) {
-			return false;
-		}
-		return *weighted_a->get_weight() < *weighted_b->get_weight();
-	});
-	return result;
-}
-template<typename N, typename E>
-[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const -> iterator {
-	return std::find_if(edges_.cbegin(), edges_.cend(), [&src, &dst, &weight](const std::unique_ptr<edge>& e) {
-		if (e->get_nodes() != std::make_pair(src, dst)) {
-			return false;
-		}
-		if (weight.has_value()) {
-			return e->get_weight() == weight;
-		}
-		else {
-			return !e->get_weight().has_value();
-		}
-	});
-}
 #endif // GDWG_GRAPH_H
