@@ -473,12 +473,12 @@ TEST_CASE("edges function returns copies of edges") {
 	CHECK(edges[1]->get_weight() == 2);
 }
 TEST_CASE("find function returns iterator to unweighted edge") {
-	auto g = TestableGraph<std::string, int>{};
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	g.insert_node("B");
 	g.insert_edge("A", "B");
 	auto it = g.find("A", "B");
-	auto& edges = g.get_edges(); // 现在可以访问get_edges
-	REQUIRE(it != edges.end());
+	auto& edges = gdwg::TestHelper<std::string, int>::get_edges(g);
+	CHECK(it != edges.end());
 	CHECK(!(*it)->is_weighted());
 }
