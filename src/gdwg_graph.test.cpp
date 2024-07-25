@@ -335,3 +335,32 @@ TEST_CASE("erase_edge basic test") {
 	CHECK(g.is_connected("A", "B") == false);
 	CHECK(g.erase_edge("A", "B", 1) == false); // Edge already removed
 }
+TEST_CASE("erase_edge with multiple edges") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "B", 2);
+
+	CHECK(g.erase_edge("A", "B", 1) == true);
+	CHECK(g.is_connected("A", "B") == true); // There is still one edge
+	CHECK(g.erase_edge("A", "B", 2) == true);
+	CHECK(g.is_connected("A", "B") == false); // All edges removed
+}
+TEST_CASE("erase_edge with reverse direction edge") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	CHECK(g.erase_edge("B", "A", 1) == false);
+	CHECK(g.is_connected("A", "B") == true);
+}
+TEST_CASE("erase_edge with unweighted edge") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B");
+	CHECK(g.erase_edge("A", "B") == true);
+	CHECK(g.is_connected("A", "B") == false);
+	CHECK(g.erase_edge("A", "B") == false); // Edge already removed
+}
