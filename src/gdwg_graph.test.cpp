@@ -541,6 +541,32 @@ TEST_CASE("Connections with duplicate outgoing edges") {
 	g.insert_edge("A", "B", 1);
 	g.insert_edge("A", "B", 2);
 	auto result = g.connections("A");
-	std::vector<std::string> expected = {"B"};
+	auto expected = std::vector<std::string>{"B"};
+	CHECK(result == expected);
+}
+TEST_CASE("Connections with differently weighted outgoing edges and test order") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+	g.insert_node("D");
+	g.insert_edge("A", "C", 3);
+	g.insert_edge("A", "B", 1);
+	g.insert_edge("A", "D", 2);
+	auto result = g.connections("A");
+	auto expected = std::vector<std::string>{"B", "C", "D"};
+	CHECK(result == expected);
+}
+TEST_CASE("Connections with unweighted and weighted outgoing edges") {
+	gdwg::graph<std::string, int> g;
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_node("C");
+	g.insert_node("D");
+	g.insert_edge("A", "C");
+	g.insert_edge("A", "B", 2);
+	g.insert_edge("A", "D", 1);
+	auto result = g.connections("A");
+	auto expected = std::vector<std::string>{"B", "C", "D"};
 	CHECK(result == expected);
 }
