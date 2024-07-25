@@ -199,6 +199,24 @@ TEST_CASE("Test is_weighted for unweighted edges") {
 	auto result2 = ue2.is_weighted();
 	CHECK(result2 == false);
 }
+TEST_CASE("Test get_nodes with weighted edge") {
+	gdwg::weighted_edge<int, double> we1(1, 2, 3.14);
+	auto result1 = we1.get_nodes();
+	CHECK(result1 == std::make_pair(1, 2));
+
+	gdwg::weighted_edge<std::string, int> we2("A", "B", 10);
+	auto result2 = we2.get_nodes();
+	CHECK(result2 == std::make_pair(std::string("A"), std::string("B")));
+}
+TEST_CASE("Test get_nodes with unweighted edge") {
+	gdwg::unweighted_edge<int, double> ue1(1, 2);
+	auto result1 = ue1.get_nodes();
+	CHECK(result1 == std::make_pair(1, 2));
+
+	gdwg::unweighted_edge<std::string, int> ue2("A", "B");
+	auto result2 = ue2.get_nodes();
+	CHECK(result2 == std::make_pair(std::string("A"), std::string("B")));
+}
 TEST_CASE("empty basic test") {
 	auto g = gdwg::graph<std::string, int>{};
 	CHECK(g.empty() == true);
