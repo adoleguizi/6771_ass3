@@ -29,6 +29,24 @@ TEST_CASE("graph copy constructor and assign operator") {
 	CHECK(g2.insert_edge(1, 2) == false);
 	CHECK(g2.insert_edge(2, 3, "weight1") == false);
 }
+TEST_CASE("graph copy constructor with empty graph") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	auto g2 = g1;
+
+	CHECK(g2.empty());
+}
+TEST_CASE("graph copy constructor and modifying original graph") {
+	auto g1 = gdwg::graph<int, std::string>{1, 2, 3};
+	g1.insert_edge(1, 2, "weight1");
+	auto g2 = g1;
+	g1.insert_edge(2, 3, "weight2");
+	g1.erase_node(1);
+	CHECK(g2.is_node(1));
+	CHECK(g2.is_node(2));
+	CHECK(g2.is_node(3));
+	CHECK(g2.is_connected(1, 2));
+	CHECK_FALSE(g2.is_connected(2, 3));
+}
 TEST_CASE("insert node and check node") {
 	auto g = gdwg::graph<int, std::string>{};
 	auto n1 = 1;
