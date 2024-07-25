@@ -83,7 +83,7 @@ namespace gdwg {
 
 		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
 
-		// auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
+		auto erase_edge(N const& src, N const& dst, std::optional<E> weight = std::nullopt) -> bool;
 
 	 protected:
 		std::set<N> nodes_;
@@ -392,6 +392,30 @@ template<typename N, typename E>
 				return true;
 			}
 		}
+	}
+	return false;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::erase_edge(N const& src, N const& dst, std::optional<E> weight) -> bool {
+	if (!is_node(src) || !is_node(dst)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the "
+		                         "graph");
+	}
+	auto it = std::remove_if(edges_[src].begin(), edges_[src].end(), [&](const std::unique_ptr<edge>& e) {
+		auto nodes = e->get_nodes();
+		if (nodes.first == src and nodes.second == dst) {
+			if (weight and e->is_weighted()) {
+				return e->get_weight() == weight;
+			}
+			else if (!weight and !e->is_weighted()) {
+				return true;
+			}
+		}
+		return false;
+	});
+	if (it != edges_[src].end()) {
+		edges_[src].erase(it, edges_[src].end());
+		return true;
 	}
 	return false;
 }

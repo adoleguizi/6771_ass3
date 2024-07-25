@@ -316,3 +316,22 @@ TEST_CASE("Weighted edge and unweighted edge are not equal ") {
 	unweighted_edge e2(1, 2);
 	CHECK(!e1.operator==(e2));
 }
+TEST_CASE("erase_edge non-existent nodes") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+
+	CHECK_THROWS_WITH(g.erase_edge("A", "C"),
+	                  "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
+	CHECK_THROWS_WITH(g.erase_edge("C", "B"),
+	                  "Cannot call gdwg::graph<N, E>::erase_edge on src or dst if they don't exist in the graph");
+}
+TEST_CASE("erase_edge basic test") {
+	auto g = gdwg::graph<std::string, int>{};
+	g.insert_node("A");
+	g.insert_node("B");
+	g.insert_edge("A", "B", 1);
+	CHECK(g.erase_edge("A", "B", 1) == true);
+	CHECK(g.is_connected("A", "B") == false);
+	CHECK(g.erase_edge("A", "B", 1) == false); // Edge already removed
+}
