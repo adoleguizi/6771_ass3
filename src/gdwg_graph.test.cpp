@@ -52,6 +52,26 @@ TEST_CASE("insert duplicate edges weight int and unweighted edge") {
 	g.insert_edge(2, 3);
 	CHECK(g.insert_edge(2, 3) == false);
 }
+TEST_CASE("Move constructor: New object contains moved nodes and edges") {
+	auto g1 = gdwg::graph<std::string, int>{};
+	g1.insert_node("A");
+	g1.insert_node("B");
+	g1.insert_edge("A", "B", 1);
+
+	auto g2 = std::move(g1);
+
+	CHECK(g2.is_node("A"));
+	CHECK(g2.is_node("B"));
+	CHECK(g2.is_connected("A", "B"));
+}
+TEST_CASE("Move constructor: Original object is empty after move") {
+	auto g1 = gdwg::graph<std::string, int>{};
+	g1.insert_node("A");
+	g1.insert_node("B");
+	g1.insert_edge("A", "B", 1);
+	auto g2 = std::move(g1);
+	CHECK(g1.empty());
+}
 TEST_CASE("replace node with a new node") {
 	auto g = gdwg::graph<int, std::string>{1, 2, 3};
 	REQUIRE(g.is_node(1));
@@ -629,4 +649,15 @@ TEST_CASE("Connections with unweighted and weighted outgoing edges") {
 	auto result = g.connections("A");
 	auto expected = std::vector<std::string>{"B", "C", "D"};
 	CHECK(result == expected);
+}
+TEST_CASE("Move constructor keeps iterators of the moved-to graph valid") {
+	auto g1 = gdwg::graph<std::string, int>{};
+	g1.insert_node("A");
+	g1.insert_node("B");
+	g1.insert_edge("A", "B", 1);
+	auto it_g1 = g1.find("A", "B", 1);
+	// Move construct g3
+	auto g3 = std::move(g1);
+	// Check iterator points to the same element in g3
+	CHECK(*it_g1 == *g3.find("A", "B", 1));
 }
