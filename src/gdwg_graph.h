@@ -639,4 +639,8 @@ auto gdwg::graph<N, E>::iterator::operator--(int) -> iterator {
 	--(*this);
 	return temp;
 }
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator==(const iterator& other) const -> bool {
+	return g == other.g and map_it == other.map_it and vec_it == other.vec_it;
+}
 #endif // GDWG_GRAPH_H
