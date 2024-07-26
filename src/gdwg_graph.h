@@ -131,6 +131,9 @@ namespace gdwg {
 
 		[[nodiscard]] auto connections(N const& src) -> std::vector<N>;
 
+		[[nodiscard]] auto begin() const -> iterator;
+		[[nodiscard]] auto end() const -> iterator;
+
 	 protected:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
@@ -642,5 +645,14 @@ auto gdwg::graph<N, E>::iterator::operator--(int) -> iterator {
 template<typename N, typename E>
 auto gdwg::graph<N, E>::iterator::operator==(const iterator& other) const -> bool {
 	return g == other.g and map_it == other.map_it and vec_it == other.vec_it;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::begin() const -> iterator {
+	return iterator(this);
+}
+
+template<typename N, typename E>
+auto gdwg::graph<N, E>::end() const -> iterator {
+	return iterator(this, true);
 }
 #endif // GDWG_GRAPH_H
