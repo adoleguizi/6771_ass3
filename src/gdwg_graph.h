@@ -336,7 +336,7 @@ auto gdwg::unweighted_edge<N, E>::print_edge() const noexcept -> std::string {
 template<typename N, typename E>
 auto gdwg::graph<N, E>::insert_node(N const& value) -> bool {
 	auto result = nodes_.insert(value);
-	return result.second; // 如果插入成功，返回 true；否则返回 false
+	return result.second;
 }
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::is_node(N const& value) const noexcept -> bool {
@@ -573,5 +573,22 @@ template<typename N, typename E>
 		connected_nodes.insert(e->get_nodes().second);
 	}
 	return std::vector<N>(connected_nodes.begin(), connected_nodes.end());
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
+	if (g == nullptr) {
+		return *this;
+	}
+	++vec_it;
+	if (vec_it == map_it->second.end()) {
+		++map_it;
+		while (map_it != g->edges_.end() && map_it->second.empty()) {
+			++map_it;
+		}
+		if (map_it != g->edges_.end()) {
+			vec_it = map_it->second.begin();
+		}
+	}
+	return *this;
 }
 #endif // GDWG_GRAPH_H
