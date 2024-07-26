@@ -610,4 +610,33 @@ auto gdwg::graph<N, E>::iterator::operator++(int) -> iterator {
 	++(*this);
 	return temp;
 }
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator--() -> iterator& {
+	if (g == nullptr) {
+		return *this;
+	}
+	if (vec_it == map_it->second.begin()) {
+		if (map_it == g->edges_.begin()) {
+			*this = iterator(g, true);
+			return *this;
+		}
+		--map_it;
+		vec_it = map_it->second.end();
+	}
+	--vec_it;
+	while (map_it != g->edges_.begin() && (map_it->second.empty() || !g->has_incoming_edges(map_it->first))) {
+		--map_it;
+		vec_it = map_it->second.end();
+		if (!map_it->second.empty() && g->has_incoming_edges(map_it->first)) {
+			vec_it = map_it->second.end();
+		}
+	}
+	return *this;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator--(int) -> iterator {
+	iterator temp = *this;
+	--(*this);
+	return temp;
+}
 #endif // GDWG_GRAPH_H
