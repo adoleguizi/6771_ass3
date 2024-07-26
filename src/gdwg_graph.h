@@ -365,6 +365,26 @@ auto gdwg::graph<N, E>::insert_edge(N const& src, N const& dst, std::optional<E>
 	else {
 		edges_[src].push_back(std::make_unique<unweighted_edge<N, E>>(src, dst));
 	}
+	// Sort edges after insertion
+	std::sort(edges_[src].begin(), edges_[src].end(), [](const std::unique_ptr<edge>& a, const std::unique_ptr<edge>& b) {
+		auto a_nodes = a->get_nodes();
+		auto b_nodes = b->get_nodes();
+		if (a_nodes.first != b_nodes.first) {
+			return a_nodes.first < b_nodes.first;
+		}
+		if (a_nodes.second != b_nodes.second) {
+			return a_nodes.second < b_nodes.second;
+		}
+		auto weighted_a = dynamic_cast<weighted_edge<N, E>*>(a.get());
+		auto weighted_b = dynamic_cast<weighted_edge<N, E>*>(b.get());
+		if (!weighted_a) {
+			return true;
+		}
+		if (!weighted_b) {
+			return false;
+		}
+		return *weighted_a->get_weight() < *weighted_b->get_weight();
+	});
 	return true;
 }
 template<typename N, typename E>
