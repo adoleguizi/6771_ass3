@@ -627,3 +627,8 @@ TEST_CASE("Connections with unweighted and weighted outgoing edges") {
 	auto expected = std::vector<std::string>{"B", "C", "D"};
 	CHECK(result == expected);
 }
+TEST_CASE("Iterator default constructor and comparison") {
+	gdwg::graph<int, std::string>::iterator it1;
+	gdwg::graph<int, std::string>::iterator it2;
+	CHECK(it1 == it2); // Both are default constructed
+}
