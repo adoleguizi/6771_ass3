@@ -632,3 +632,44 @@ TEST_CASE("Iterator default constructor and comparison") {
 	gdwg::graph<int, std::string>::iterator it2;
 	CHECK(it1 == it2); // Both are default constructed
 }
+TEST_CASE("Iterator specific element constructor and dereference") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "edge");
+	auto it = g.begin();
+	auto edge = *it;
+	CHECK(edge.from == 1);
+	CHECK(edge.to == 2);
+	CHECK(edge.weight == "edge");
+}
+TEST_CASE("Iterator pre-increment basic consistenct node graph") {
+	gdwg::graph<int, int> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, 1);
+	g.insert_edge(2, 3, 2);
+	auto it = g.begin();
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	++it;
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 3);
+}
+TEST_CASE("Iterator post-increment") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(2, 3, "edge2");
+	auto it = g.begin();
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	auto it2 = it++;
+	CHECK((*it2).from == 1);
+	CHECK((*it2).to == 2);
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 3);
+}
