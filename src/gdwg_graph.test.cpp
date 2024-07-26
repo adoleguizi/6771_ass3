@@ -673,3 +673,41 @@ TEST_CASE("Iterator post-increment") {
 	CHECK((*it).from == 2);
 	CHECK((*it).to == 3);
 }
+TEST_CASE("Iterator pre-increment with complex graph structure") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_node(4);
+	g.insert_node(5);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	g.insert_edge(2, 4, "edge3");
+	g.insert_edge(3, 4, "edge4");
+	g.insert_edge(4, 5, "edge5");
+	auto it = g.begin();
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == "edge1");
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 3);
+	CHECK((*it).weight == "edge2");
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 4);
+	CHECK((*it).weight == "edge3");
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 3);
+	CHECK((*it).to == 4);
+	CHECK((*it).weight == "edge4");
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 4);
+	CHECK((*it).to == 5);
+	CHECK((*it).weight == "edge5");
+}

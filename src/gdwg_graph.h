@@ -584,12 +584,8 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		return *this;
 	}
 	++vec_it;
-	while (map_it != g->edges_.end() && (vec_it == map_it->second.end() || !g->has_incoming_edges(map_it->first))) {
+	while (map_it != g->edges_.end() && vec_it == map_it->second.end()) {
 		++map_it;
-		// skip empty edges and nodes without incoming edges
-		while (map_it != g->edges_.end() && (map_it->second.empty() || !g->has_incoming_edges(map_it->first))) {
-			++map_it;
-		}
 		if (map_it != g->edges_.end()) {
 			vec_it = map_it->second.begin();
 		}
