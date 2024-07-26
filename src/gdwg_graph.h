@@ -198,7 +198,9 @@ namespace gdwg {
 // Implementation of the iterator class
 template<typename N, typename E>
 gdwg::graph<N, E>::iterator::iterator()
-: g(nullptr) {}
+: map_it()
+, vec_it()
+, g(nullptr) {}
 
 template<typename N, typename E>
 gdwg::graph<N, E>::iterator::iterator(const graph* graph, bool end)
@@ -212,6 +214,17 @@ gdwg::graph<N, E>::iterator::iterator(const graph* graph, bool end)
 			vec_it = map_it->second.begin();
 		}
 	}
+}
+template<typename N, typename E>
+gdwg::graph<N, E>::iterator::iterator(const graph* graph,
+                                      typename std::map<N, std::vector<std::unique_ptr<edge>>>::const_iterator map_it,
+                                      typename std::vector<std::unique_ptr<edge>>::const_iterator vec_it)
+: g(graph)
+, map_it(map_it)
+, vec_it(vec_it) {}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator*() const -> reference {
+	return reference{map_it->first, (*vec_it)->get_nodes().second, (*vec_it)->get_weight()};
 }
 template<typename N, typename E>
 gdwg::graph<N, E>::graph()
