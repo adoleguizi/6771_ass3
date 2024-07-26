@@ -134,6 +134,7 @@ namespace gdwg {
 	 protected:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
+		auto has_incoming_edges(N const& node) const -> bool;
 	};
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
@@ -580,9 +581,10 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		return *this;
 	}
 	++vec_it;
-	if (vec_it == map_it->second.end()) {
+	while (map_it != g->edges_.end() && (vec_it == map_it->second.end() || !g->has_incoming_edges(map_it->first))) {
 		++map_it;
-		while (map_it != g->edges_.end() && map_it->second.empty()) {
+		// skip empty edges and nodes without incoming edges
+		while (map_it != g->edges_.end() && (map_it->second.empty() || !g->has_incoming_edges(map_it->first))) {
 			++map_it;
 		}
 		if (map_it != g->edges_.end()) {
@@ -590,5 +592,16 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		}
 	}
 	return *this;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::has_incoming_edges(N const& node) const -> bool {
+	for (const auto& [src, edges] : edges_) {
+		for (const auto& e : edges) {
+			if (e->get_nodes().second == node && e->get_nodes().first != node) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 #endif // GDWG_GRAPH_H
