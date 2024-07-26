@@ -64,7 +64,7 @@ namespace gdwg {
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::bidirectional_iterator_tag;
 			// Iterator constructor
-			iterator() = default;
+			iterator();
 			// Iterator source
 			auto operator*() const -> reference;
 			// Iterator traversal
@@ -195,6 +195,24 @@ namespace gdwg {
 		}
 	};
 } // namespace gdwg
+// Implementation of the iterator class
+template<typename N, typename E>
+gdwg::graph<N, E>::iterator::iterator()
+: g(nullptr) {}
+
+template<typename N, typename E>
+gdwg::graph<N, E>::iterator::iterator(const graph* graph, bool end)
+: g(graph) {
+	if (end) {
+		map_it = g->edges_.end();
+	}
+	else {
+		map_it = g->edges_.begin();
+		if (map_it != g->edges_.end()) {
+			vec_it = map_it->second.begin();
+		}
+	}
+}
 template<typename N, typename E>
 gdwg::graph<N, E>::graph()
 : nodes_()
