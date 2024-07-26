@@ -604,4 +604,10 @@ auto gdwg::graph<N, E>::has_incoming_edges(N const& node) const -> bool {
 	}
 	return false;
 }
+template<typename N, typename E>
+auto gdwg::graph<N, E>::iterator::operator++(int) -> iterator {
+	iterator temp = *this;
+	++(*this);
+	return temp;
+}
 #endif // GDWG_GRAPH_H
