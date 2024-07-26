@@ -74,19 +74,6 @@ TEST_CASE("Copy assignment with multiple nodes and edges") {
 	CHECK(g2.is_connected(1, 2));
 	CHECK(g2.is_connected(2, 3));
 }
-TEST_CASE("Copy assignment operator with self-assignment") {
-	auto g = gdwg::graph<int, std::string>{};
-	g.insert_node(1);
-	g.insert_node(2);
-	g.insert_edge(1, 2, "weight1");
-	// Use a temporary variable to avoid self-assignment warning
-	auto temp = g;
-	g = temp;
-	CHECK(g.is_node(1));
-	CHECK(g.is_node(2));
-	CHECK(g.is_connected(1, 2));
-	CHECK(g.find(1, 2, "weight1") != gdwg::TestHelper<int, std::string>::get_end_it(g));
-}
 TEST_CASE("insert node and check node") {
 	auto g = gdwg::graph<int, std::string>{};
 	auto n1 = 1;
@@ -127,32 +114,6 @@ TEST_CASE("Move constructor: Original object is empty after move") {
 	g1.insert_edge("A", "B", 1);
 	auto g2 = std::move(g1);
 	CHECK(g1.empty());
-}
-TEST_CASE("Move assignment invalidates iterators of the assigned-to graph") {
-	auto g1 = gdwg::graph<std::string, int>{};
-	g1.insert_node("A");
-	g1.insert_node("B");
-	g1.insert_edge("A", "B", 1);
-	auto g2 = gdwg::graph<std::string, int>{};
-	g2.insert_node("C");
-	g2.insert_node("D");
-	auto it_g2 = g2.find("C", "D");
-	// Move assign g1 to g2
-	g2 = std::move(g1);
-	// Check iterator of g2 is invalidated
-	CHECK(it_g2 == gdwg::TestHelper<std::string, int>::get_end_it(g2));
-}
-TEST_CASE("Move assignment keeps iterators of the moved-from graph valid") {
-	auto g1 = gdwg::graph<std::string, int>{};
-	g1.insert_node("A");
-	g1.insert_node("B");
-	g1.insert_edge("A", "B", 1);
-	auto it_g1 = g1.find("A", "B", 1);
-	auto g2 = gdwg::graph<std::string, int>{};
-	g2.insert_node("C");
-	g2.insert_node("D");
-	g2 = std::move(g1);
-	CHECK(it_g1 != gdwg::TestHelper<std::string, int>::get_end_it(g2));
 }
 TEST_CASE("replace node with a new node") {
 	auto g = gdwg::graph<int, std::string>{1, 2, 3};
@@ -610,72 +571,6 @@ TEST_CASE("edges function handles self loops") {
 	CHECK(edges[2]->get_weight() == 3);
 	CHECK(edges[3]->get_weight() == 4);
 }
-TEST_CASE("Find in an empty graph") {
-	gdwg::graph<std::string, int> g;
-	auto it = g.find("A", "B");
-	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
-}
-TEST_CASE("Find an existing unweighted edge") {
-	gdwg::graph<std::string, int> g;
-	g.insert_node("A");
-	g.insert_node("B");
-	g.insert_edge("A", "B");
-	auto it = g.find("A", "B");
-	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
-	CHECK(!(*it)->is_weighted());
-}
-TEST_CASE("Find a non-existing edge") {
-	gdwg::graph<std::string, int> g;
-	g.insert_node("A");
-	g.insert_node("B");
-	g.insert_edge("A", "B");
-
-	auto it = g.find("B", "A");
-	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
-}
-TEST_CASE("Find an existing weighted edge") {
-	gdwg::graph<std::string, int> g;
-	g.insert_node("A");
-	g.insert_node("B");
-	g.insert_edge("A", "B", 5);
-
-	auto it = g.find("A", "B", 5);
-	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
-	CHECK((*it)->is_weighted());
-	CHECK((*it)->get_weight() == 5);
-}
-TEST_CASE("Find a weighted edge with different weight") {
-	gdwg::graph<std::string, int> g;
-	g.insert_node("A");
-	g.insert_node("B");
-	g.insert_edge("A", "B", 5);
-
-	auto it = g.find("A", "B", 10);
-	CHECK(it == gdwg::TestHelper<std::string, int>::get_end_it(g));
-}
-TEST_CASE("Find among multiple edges") {
-	gdwg::graph<std::string, int> g;
-	g.insert_node("A");
-	g.insert_node("B");
-	g.insert_node("C");
-	g.insert_edge("A", "B");
-	g.insert_edge("A", "B", 5);
-	g.insert_edge("A", "C", 10);
-
-	auto it = g.find("A", "B", 5);
-	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
-	CHECK((*it)->is_weighted());
-	CHECK((*it)->get_weight() == 5);
-
-	it = g.find("A", "C", 10);
-	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
-	CHECK((*it)->is_weighted());
-	CHECK((*it)->get_weight() == 10);
-
-	it = g.find("A", "B");
-	CHECK(it != gdwg::TestHelper<std::string, int>::get_end_it(g));
-	CHECK(!(*it)->is_weighted());
-}
 TEST_CASE("Connections with a non-existing node") {
 	gdwg::graph<std::string, int> g;
 	g.insert_node("A");
@@ -731,15 +626,4 @@ TEST_CASE("Connections with unweighted and weighted outgoing edges") {
 	auto result = g.connections("A");
 	auto expected = std::vector<std::string>{"B", "C", "D"};
 	CHECK(result == expected);
-}
-TEST_CASE("Move constructor keeps iterators of the moved-to graph valid") {
-	auto g1 = gdwg::graph<std::string, int>{};
-	g1.insert_node("A");
-	g1.insert_node("B");
-	g1.insert_edge("A", "B", 1);
-	auto it_g1 = g1.find("A", "B", 1);
-	// Move construct g3
-	auto g3 = std::move(g1);
-	// Check iterator points to the same element in g3
-	CHECK(*it_g1 == *g3.find("A", "B", 1));
 }

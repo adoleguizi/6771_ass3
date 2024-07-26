@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <iomanip>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
@@ -50,7 +51,41 @@ namespace gdwg {
 	class graph {
 	 public:
 		using edge = gdwg::edge<N, E>;
-		using iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
+		// using iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
+		class iterator {
+		 public:
+			using value_type = struct {
+				N from;
+				N to;
+				std::optional<E> weight;
+			};
+			using reference = value_type;
+			using pointer = void;
+			using difference_type = std::ptrdiff_t;
+			using iterator_category = std::bidirectional_iterator_tag;
+			// Iterator constructor
+			iterator() = default;
+			// Iterator source
+			auto operator*() const -> reference;
+			// Iterator traversal
+			auto operator++() -> iterator&;
+			auto operator++(int) -> iterator;
+			auto operator--() -> iterator&;
+			auto operator--(int) -> iterator;
+			// Iterator comparison
+			auto operator==(iterator const& other) const -> bool;
+
+		 private:
+			typename std::map<N, std::vector<std::unique_ptr<edge>>>::const_iterator map_it;
+			typename std::vector<std::unique_ptr<edge>>::const_iterator vec_it;
+			const graph* g;
+			iterator(const graph* graph, bool end = false);
+			iterator(const graph* graph,
+			         typename std::map<N, std::vector<std::unique_ptr<edge>>>::const_iterator map_it,
+			         typename std::vector<std::unique_ptr<edge>>::const_iterator vec_it);
+
+			friend class graph;
+		};
 
 		graph();
 		// Your member functions go here
@@ -99,20 +134,6 @@ namespace gdwg {
 	 protected:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
-		std::vector<std::unique_ptr<edge>> empty_edges_;
-		iterator end_it_ = empty_edges_.end();
-		template<typename NW, typename EW>
-		friend class TestHelper;
-	};
-	template<typename N, typename E>
-	class TestHelper {
-	 public:
-		static auto get_edges(gdwg::graph<N, E> const& g) -> const std::vector<std::unique_ptr<gdwg::edge<N, E>>>& {
-			return g.edges_;
-		}
-		static auto get_end_it(gdwg::graph<N, E> const& g) -> typename gdwg::graph<N, E>::iterator {
-			return g.end_it_;
-		}
 	};
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
@@ -173,14 +194,11 @@ namespace gdwg {
 			}
 		}
 	};
-
 } // namespace gdwg
 template<typename N, typename E>
 gdwg::graph<N, E>::graph()
 : nodes_()
-, edges_()
-, empty_edges_()
-, end_it_(empty_edges_.end()) {
+, edges_() {
 	// Constructor
 }
 
@@ -489,26 +507,6 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 		return *weighted_a->get_weight() < *weighted_b->get_weight();
 	});
 	return result;
-}
-template<typename N, typename E>
-[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const -> iterator {
-	auto it = edges_.find(src);
-	if (it != edges_.end()) {
-		auto edge_it = std::find_if(it->second.begin(), it->second.end(), [&](auto const& e) {
-			if (e->get_nodes() != std::make_pair(src, dst)) {
-				return false;
-			}
-			if (weight.has_value()) {
-				return e->get_weight() == weight;
-			}
-			return !e->get_weight().has_value();
-		});
-		if (edge_it != it->second.end()) {
-			return edge_it;
-		}
-	}
-	// 返回图的结束迭代器
-	return empty_edges_.end();
 }
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::connections(N const& src) -> std::vector<N> {
