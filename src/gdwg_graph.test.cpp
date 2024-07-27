@@ -748,4 +748,6 @@ TEST_CASE("Iterator pre-increment with complex graph and refexive node") {
 	CHECK((*it).from == 5);
 	CHECK((*it).to == 5);
 	CHECK((*it).weight == 5);
+	++it;
+	CHECK(it == g.end());
 }

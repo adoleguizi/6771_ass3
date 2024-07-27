@@ -589,6 +589,10 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		if (map_it != g->edges_.end()) {
 			vec_it = map_it->second.begin();
 		}
+		else {
+			// We have reached the end of the map, set vec_it to a default value
+			vec_it = typename std::vector<std::unique_ptr<edge>>::const_iterator();
+		}
 	}
 	return *this;
 }
