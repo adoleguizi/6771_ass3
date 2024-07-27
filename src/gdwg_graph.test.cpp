@@ -862,7 +862,7 @@ TEST_CASE("Iterator pre-decrement to begin") {
 	CHECK((*it).to == 2);
 	CHECK((*it).weight == "edge1");
 	--it;
-	CHECK(it == g.begin()); // 确保迭代器正确返回到开始位置
+	CHECK(it == g.begin());
 }
 TEST_CASE("Iterator post-decrement with complex graph and reflexive node") {
 	gdwg::graph<int, int> g;
