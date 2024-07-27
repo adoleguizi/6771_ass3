@@ -580,7 +580,7 @@ template<typename N, typename E>
 }
 template<typename N, typename E>
 auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
-	if (g == nullptr) {
+	if (g == nullptr or map_it == g->edges_.end()) {
 		return *this;
 	}
 	++vec_it;
@@ -592,6 +592,7 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		else {
 			// We have reached the end of the map, set vec_it to a default value
 			vec_it = typename std::vector<std::unique_ptr<edge>>::const_iterator();
+			return *this;
 		}
 	}
 	return *this;
@@ -631,10 +632,6 @@ auto gdwg::graph<N, E>::iterator::operator--() -> iterator& {
 		vec_it = map_it->second.end();
 	}
 	--vec_it;
-	while (map_it != g->edges_.begin() and vec_it == map_it->second.end()) {
-		--map_it;
-		vec_it = map_it->second.end();
-	}
 	return *this;
 }
 template<typename N, typename E>

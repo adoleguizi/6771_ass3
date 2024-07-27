@@ -906,6 +906,46 @@ TEST_CASE("Iterator post-decrement with complex graph and reflexive node") {
 	CHECK((*it).to == 2);
 	CHECK((*it).weight == 1);
 	it2 = it--;
-	CHECK(it2 != g.begin());
+	CHECK(it2 != g.end());
+	CHECK(it2 == g.begin());
+	CHECK((*it2).from == 1);
+	CHECK((*it2).to == 2);
+	CHECK((*it2).weight == 1);
+	CHECK(it == g.begin());
+}
+TEST_CASE("Iterator post-decrement with complex graph and reflexive node should be 1->12 1->21 12->19 19->1 19->21") {
+	gdwg::graph<int, int> g;
+	g.insert_node(1);
+	g.insert_node(12);
+	g.insert_node(19);
+	g.insert_node(21);
+	g.insert_node(67);
+	g.insert_edge(1, 12, 3);
+	g.insert_edge(12, 19, 3);
+	g.insert_edge(1, 21, 3);
+	g.insert_edge(19, 1, 3);
+	g.insert_edge(19, 21, 3);
+	auto it = g.end();
+	--it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 19);
+	CHECK((*it).to == 21);
+	CHECK((*it).weight == 3);
+	auto it2 = it--;
+	CHECK(it2 != g.end());
+	CHECK((*it2).from == 19);
+	CHECK((*it2).to == 21);
+	CHECK((*it2).weight == 3);
+	CHECK(it != g.end());
+	CHECK((*it).from == 19);
+	CHECK((*it).to == 1);
+	CHECK((*it).weight == 3);
+	std::advance(it, -3);
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 12);
+	CHECK((*it).weight == 3);
+	std::advance(it, 3);
+	std::advance(it, -3);
 	CHECK(it == g.begin());
 }
