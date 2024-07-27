@@ -949,3 +949,35 @@ TEST_CASE("Iterator post-decrement with complex graph and reflexive node should 
 	std::advance(it, -3);
 	CHECK(it == g.begin());
 }
+TEST_CASE("Empty graph begin() and end()") {
+	auto g = gdwg::graph<int, std::string>{};
+	auto it = g.begin();
+	CHECK(it == g.end());
+}
+TEST_CASE("Single node graph begin() and end()") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	auto it = g.begin();
+	CHECK(it == g.end());
+}
+TEST_CASE("Single edge graph begin() and end()") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "edge1");
+	auto it = g.begin();
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == "edge1");
+}
+TEST_CASE("Graph with self-loop begin() and end()") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_edge(1, 1, "self-loop");
+	auto it = g.begin();
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 1);
+	CHECK((*it).weight == "self-loop");
+}
