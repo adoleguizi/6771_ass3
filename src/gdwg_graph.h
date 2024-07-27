@@ -618,21 +618,22 @@ auto gdwg::graph<N, E>::iterator::operator--() -> iterator& {
 	if (g == nullptr) {
 		return *this;
 	}
+	if (map_it == g->edges_.end() and vec_it == typename std::vector<std::unique_ptr<edge>>::const_iterator()) {
+		--map_it;
+		vec_it = map_it->second.end();
+	}
 	if (vec_it == map_it->second.begin()) {
 		if (map_it == g->edges_.begin()) {
-			*this = iterator(g, true);
+			*this = iterator(g);
 			return *this;
 		}
 		--map_it;
 		vec_it = map_it->second.end();
 	}
 	--vec_it;
-	while (map_it != g->edges_.begin() && (map_it->second.empty() || !g->has_incoming_edges(map_it->first))) {
+	while (map_it != g->edges_.begin() and vec_it == map_it->second.end()) {
 		--map_it;
 		vec_it = map_it->second.end();
-		if (!map_it->second.empty() && g->has_incoming_edges(map_it->first)) {
-			vec_it = map_it->second.end();
-		}
 	}
 	return *this;
 }

@@ -827,3 +827,40 @@ TEST_CASE("Iterator post-increment with complex graph and reflexive node") {
 	it2 = it++;
 	CHECK(it == g.end());
 }
+TEST_CASE("Iterator pre-decrement with empty nodes") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_node(4); // No edges connected to node 4
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(2, 3, "edge2");
+	auto it = g.end();
+	--it;
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 3);
+	CHECK((*it).weight == "edge2");
+	--it;
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == "edge1");
+}
+TEST_CASE("Iterator pre-decrement to begin") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(2, 3, "edge2");
+	auto it = g.end();
+	--it;
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 3);
+	CHECK((*it).weight == "edge2");
+	--it;
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == "edge1");
+	--it;
+	CHECK(it == g.begin()); // 确保迭代器正确返回到开始位置
+}
