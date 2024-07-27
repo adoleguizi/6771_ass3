@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <algorithm>
+#include <exception>
 #include <functional>
 #include <iomanip>
 #include <iterator>
@@ -264,9 +265,7 @@ gdwg::graph<N, E>::graph(graph&& other) noexcept
 : nodes_(std::exchange(other.nodes_, {}))
 , // using std::exchange to set other.nodes_ to empty
 edges_(std::exchange(other.edges_, {})) // using std::exchange to set other.edges_ to empty
-{
-	// Move constructor
-}
+{}
 template<typename N, typename E>
 auto gdwg::graph<N, E>::operator=(graph&& other) noexcept -> graph& {
 	if (this != &other) {
