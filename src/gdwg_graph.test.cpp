@@ -95,24 +95,38 @@ TEST_CASE("insert duplicate edges weight int and unweighted edge") {
 	g.insert_edge(2, 3);
 	CHECK(g.insert_edge(2, 3) == false);
 }
+TEST_CASE("Move constructor: empty graph") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	auto g2 = gdwg::graph<int, std::string>{std::move(g1)};
+	CHECK(g2.empty());
+	CHECK(g1.empty());
+}
 TEST_CASE("Move constructor: New object contains moved nodes and edges") {
 	auto g1 = gdwg::graph<std::string, int>{};
 	g1.insert_node("A");
 	g1.insert_node("B");
 	g1.insert_edge("A", "B", 1);
-
+	auto it = g1.begin();
 	auto g2 = std::move(g1);
-
 	CHECK(g2.is_node("A"));
 	CHECK(g2.is_node("B"));
 	CHECK(g2.is_connected("A", "B"));
+	CHECK(it != g2.end());
+	CHECK((*it).from == "A");
+	CHECK((*it).to == "B");
+	CHECK((*it).weight == 1);
+	CHECK((g1.empty()));
 }
-TEST_CASE("Move constructor: Original object is empty after move") {
-	auto g1 = gdwg::graph<std::string, int>{};
-	g1.insert_node("A");
-	g1.insert_node("B");
-	g1.insert_edge("A", "B", 1);
-	auto g2 = std::move(g1);
+TEST_CASE("Move constructor: single edge, no nodes") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	g1.erase_node(1);
+	g1.erase_node(2);
+
+	auto g2 = gdwg::graph<int, std::string>{std::move(g1)};
+	CHECK(g2.empty());
 	CHECK(g1.empty());
 }
 TEST_CASE("replace node with a new node") {
