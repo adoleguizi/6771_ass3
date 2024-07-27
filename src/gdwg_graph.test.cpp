@@ -1001,3 +1001,39 @@ TEST_CASE("Graph with multiple edges from a single node begin() and end()") {
 	++it;
 	CHECK(it == g.end());
 }
+TEST_CASE("Graphs with identical nodes and edges are equal") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_node(3);
+	g1.insert_edge(1, 2, "edge1");
+	g1.insert_edge(2, 3, "edge2");
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_node(3);
+	g2.insert_edge(1, 2, "edge1");
+	g2.insert_edge(2, 3, "edge2");
+	CHECK(g1 == g2);
+}
+TEST_CASE("Graphs with different nodes are not equal") {
+	gdwg::graph<int, std::string> g1;
+	g1.insert_node(1);
+	g1.insert_node(2);
+	gdwg::graph<int, std::string> g2;
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_node(3);
+	CHECK(g1 != g2);
+}
+TEST_CASE("Graphs with different edges are not equal") {
+	gdwg::graph<int, std::string> g1;
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	gdwg::graph<int, std::string> g2;
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_edge(1, 2, "edge2");
+	CHECK(g1 != g2);
+}
