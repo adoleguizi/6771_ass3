@@ -711,3 +711,41 @@ TEST_CASE("Iterator pre-increment with complex graph structure") {
 	CHECK((*it).to == 5);
 	CHECK((*it).weight == "edge5");
 }
+TEST_CASE("Iterator pre-increment with complex graph and refexive node") {
+	gdwg::graph<int, int> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_node(4);
+	g.insert_node(5);
+	g.insert_edge(1, 2, 1);
+	g.insert_edge(1, 3, 2);
+	g.insert_edge(3, 2, 3);
+	g.insert_edge(2, 4, 4);
+	g.insert_edge(5, 5, 5);
+	auto it = g.begin();
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == 1);
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 3);
+	CHECK((*it).weight == 2);
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 2);
+	CHECK((*it).to == 4);
+	CHECK((*it).weight == 4);
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 3);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == 3);
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 5);
+	CHECK((*it).to == 5);
+	CHECK((*it).weight == 5);
+}
