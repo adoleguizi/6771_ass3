@@ -1037,3 +1037,28 @@ TEST_CASE("Graphs with different edges are not equal") {
 	g2.insert_edge(1, 2, "edge2");
 	CHECK(g1 != g2);
 }
+TEST_CASE("Graphs with one having extra edges are not equal") {
+	gdwg::graph<int, std::string> g1;
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	gdwg::graph<int, std::string> g2;
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_edge(1, 2, "edge1");
+	g2.insert_edge(2, 1, "edge2");
+	CHECK(!(g1 == g2));
+}
+TEST_CASE("Graphs with edges in different order are equal") {
+	gdwg::graph<int, std::string> g1;
+	gdwg::graph<int, std::string> g2;
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	g1.insert_edge(2, 1, "edge2");
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_edge(2, 1, "edge2"); // Different order
+	g2.insert_edge(1, 2, "edge1");
+	CHECK(g1 == g2);
+}
