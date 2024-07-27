@@ -981,3 +981,23 @@ TEST_CASE("Graph with self-loop begin() and end()") {
 	CHECK((*it).to == 1);
 	CHECK((*it).weight == "self-loop");
 }
+TEST_CASE("Graph with multiple edges from a single node begin() and end()") {
+	gdwg::graph<int, std::string> g;
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	auto it = g.begin();
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK((*it).weight == "edge1");
+	++it;
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 3);
+	CHECK((*it).weight == "edge2");
+	++it;
+	CHECK(it == g.end());
+}
