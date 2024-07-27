@@ -2,7 +2,9 @@
 #define GDWG_GRAPH_H
 #include <initializer_list>
 #include <type_traits>
+#include <unordered_map>
 #include <algorithm>
+#include <functional>
 #include <iomanip>
 #include <iterator>
 #include <map>
@@ -12,6 +14,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 namespace gdwg {
@@ -134,10 +137,14 @@ namespace gdwg {
 		[[nodiscard]] auto begin() const -> iterator;
 		[[nodiscard]] auto end() const -> iterator;
 
-	 protected:
+		[[nodiscard]] auto operator==(graph const& other) const noexcept -> bool;
+
+	 private:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
 		auto has_incoming_edges(N const& node) const -> bool;
+		struct edge_hash;
+		friend struct edge_hash;
 	};
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
@@ -652,5 +659,43 @@ auto gdwg::graph<N, E>::begin() const -> iterator {
 template<typename N, typename E>
 auto gdwg::graph<N, E>::end() const -> iterator {
 	return iterator(this, true);
+}
+template<typename N, typename E>
+struct gdwg::graph<N, E>::edge_hash {
+	size_t operator()(const std::tuple<N, N, std::optional<E>>& t) const {
+		size_t h1 = std::hash<N>{}(std::get<0>(t));
+		size_t h2 = std::hash<N>{}(std::get<1>(t));
+		size_t h3 = 0;
+		if (std::get<2>(t).has_value()) {
+			h3 = std::hash<E>{}(*(std::get<2>(t)));
+		}
+		return h1 ^ (h2 << 1) ^ (h3 << 2);
+	}
+};
+template<typename N, typename E>
+auto gdwg::graph<N, E>::operator==(graph const& other) const noexcept -> bool {
+	if (nodes_ != other.nodes_ or edges_.size() != other.edges_.size()) {
+		return false;
+	}
+	// Create maps to store edges for each graph
+	std::unordered_map<N, std::unordered_map<std::tuple<N, N, std::optional<E>>, bool, edge_hash>> edges_map;
+	std::unordered_map<N, std::unordered_map<std::tuple<N, N, std::optional<E>>, bool, edge_hash>> other_edges_map;
+
+	// Populate the edges map for this graph
+	for (const auto& [node, edges] : edges_) {
+		for (const auto& edge : edges) {
+			edges_map[node][std::make_tuple(edge->get_nodes().first, edge->get_nodes().second, edge->get_weight())] =
+			    true;
+		}
+	}
+	// Populate the edges map for the other graph
+	for (const auto& [node, edges] : other.edges_) {
+		for (const auto& edge : edges) {
+			other_edges_map[node][std::make_tuple(edge->get_nodes().first, edge->get_nodes().second, edge->get_weight())] =
+			    true;
+		}
+	}
+	// Compare the edges maps
+	return edges_map == other_edges_map;
 }
 #endif // GDWG_GRAPH_H
