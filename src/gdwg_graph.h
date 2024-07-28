@@ -139,6 +139,7 @@ namespace gdwg {
 		[[nodiscard]] auto end() const -> iterator;
 
 		[[nodiscard]] auto operator==(graph const& other) const noexcept -> bool;
+		auto erase_edge(iterator i) noexcept -> iterator;
 
 	 private:
 		std::set<N> nodes_;
@@ -703,5 +704,33 @@ auto gdwg::graph<N, E>::operator==(graph const& other) const noexcept -> bool {
 	}
 	// Compare the edges maps
 	return edges_map == other_edges_map;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::erase_edge(iterator i) noexcept -> iterator {
+	if (i == end()) {
+		return end();
+	}
+	auto map_it = edges_.find(i.map_it->first);
+	auto vec_it = map_it->second.begin();
+	std::advance(vec_it, std::distance(i.map_it->second.cbegin(), i.vec_it));
+	vec_it = map_it->second.erase(vec_it);
+	if (map_it->second.empty()) {
+		map_it = edges_.erase(map_it);
+	}
+	else if (vec_it == map_it->second.end()) {
+		++map_it;
+		if (map_it != edges_.end()) {
+			vec_it = map_it->second.begin();
+		}
+		else {
+			return end();
+		}
+	}
+	if (map_it == edges_.end()) {
+		return end();
+	}
+	else {
+		return iterator(this, map_it, vec_it);
+	}
 }
 #endif // GDWG_GRAPH_H
