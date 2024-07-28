@@ -642,6 +642,22 @@ TEST_CASE("Find non-existing edge") {
 	auto it = g.find(1, 2);
 	CHECK(it == g.end());
 }
+TEST_CASE("Find unweighted edge with weight parameter") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2);
+	auto it = g.find(1, 2, "edge1");
+	CHECK(it == g.end());
+}
+TEST_CASE("Find weighted edge with different weight parameter") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "edge1");
+	auto it = g.find(1, 2, "edge2");
+	CHECK(it == g.end());
+}
 TEST_CASE("Connections with a non-existing node") {
 	gdwg::graph<std::string, int> g;
 	g.insert_node("A");
