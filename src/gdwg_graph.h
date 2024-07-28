@@ -145,8 +145,8 @@ namespace gdwg {
 
 		auto clear() noexcept -> void;
 
-		// template<typename Node, typename Edge>
-		// friend auto operator<<(std::ostream& os, graph<Node,Edge> const& g) -> std::ostream&;
+		template<typename Node, typename Edge>
+		friend auto operator<<(std::ostream& os, graph<Node, Edge> const& g) -> std::ostream&;
 
 	 private:
 		std::set<N> nodes_;
@@ -772,4 +772,37 @@ template<typename N, typename E>
 	}
 	return result;
 }
+namespace gdwg {
+	template<typename N, typename E>
+	auto operator<<(std::ostream& os, gdwg::graph<N, E> const& g) -> std::ostream& {
+		for (const auto& node : g.nodes()) {
+			os << node << " (\n";
+			auto edges = g.edges(node);
+			std::sort(edges.begin(), edges.end(), [](const auto& a, const auto& b) {
+				if (a->get_nodes().second != b->get_nodes().second) {
+					return a->get_nodes().second < b->get_nodes().second;
+				}
+				if (!a->is_weighted() && b->is_weighted()) {
+					return true;
+				}
+				if (a->is_weighted() && !b->is_weighted()) {
+					return false;
+				}
+				return a->get_weight() < b->get_weight();
+			});
+			for (const auto& edge : edges) {
+				os << "  " << edge->get_nodes().first << " -> " << edge->get_nodes().second;
+				if (edge->is_weighted()) {
+					os << " | W | " << *edge->get_weight();
+				}
+				else {
+					os << " | U";
+				}
+				os << "\n";
+			}
+			os << ")\n";
+		}
+		return os;
+	}
+} // namespace gdwg
 #endif // GDWG_GRAPH_H
