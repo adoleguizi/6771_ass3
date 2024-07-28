@@ -143,6 +143,8 @@ namespace gdwg {
 
 		auto erase_edge(iterator i, iterator s) noexcept -> iterator;
 
+		auto clear() noexcept -> void;
+
 	 private:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
@@ -741,5 +743,10 @@ auto gdwg::graph<N, E>::erase_edge(iterator i, iterator s) noexcept -> iterator 
 		i = erase_edge(i);
 	}
 	return s;
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::clear() noexcept -> void {
+	nodes_.clear();
+	edges_.clear();
 }
 #endif // GDWG_GRAPH_H

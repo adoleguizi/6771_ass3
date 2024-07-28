@@ -1262,3 +1262,15 @@ TEST_CASE("Erase edge: erase single edge") {
 	CHECK(ret_it == it_end);
 	CHECK(g.empty() == false);
 }
+TEST_CASE("Clear: erasing all nodes and edges") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	g.insert_edge(2, 3, "edge3");
+	g.clear();
+	CHECK(g.empty() == true);
+	CHECK(g.begin() == g.end());
+}
