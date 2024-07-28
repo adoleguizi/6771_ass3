@@ -143,7 +143,6 @@ namespace gdwg {
 	 private:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
-		auto has_incoming_edges(N const& node) const -> bool;
 		struct edge_hash;
 		friend struct edge_hash;
 	};
@@ -602,17 +601,6 @@ auto gdwg::graph<N, E>::iterator::operator++() -> iterator& {
 		}
 	}
 	return *this;
-}
-template<typename N, typename E>
-auto gdwg::graph<N, E>::has_incoming_edges(N const& node) const -> bool {
-	for (const auto& [src, edges] : edges_) {
-		for (const auto& e : edges) {
-			if (e->get_nodes().second == node && e->get_nodes().first != node) {
-				return true;
-			}
-		}
-	}
-	return false;
 }
 template<typename N, typename E>
 auto gdwg::graph<N, E>::iterator::operator++(int) -> iterator {
