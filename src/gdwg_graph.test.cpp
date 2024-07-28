@@ -1229,4 +1229,7 @@ TEST_CASE("Erase edge: erase middle edge") {
 	auto next_it_ = g.erase_edge(next_it);
 	CHECK(g.find(1, 3, "edge2") == g.end());
 	CHECK(next_it_ != g.end());
+	auto next_it_1 = g.erase_edge(next_it_);
+	CHECK(g.find(2, 3, "edge3") == g.end());
+	CHECK(next_it_1 == g.end());
 }
