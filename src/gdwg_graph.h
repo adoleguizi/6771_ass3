@@ -56,6 +56,7 @@ namespace gdwg {
 	 public:
 		using edge = gdwg::edge<N, E>;
 		// using iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
+		// using const_iterator = typename std::vector<std::unique_ptr<edge>>::const_iterator;
 		class iterator {
 		 public:
 			using value_type = struct {
@@ -70,7 +71,7 @@ namespace gdwg {
 			// Iterator constructor
 			iterator();
 			// Iterator source
-			auto operator*() const -> reference;
+			auto operator*() const -> const reference;
 			// Iterator traversal
 			auto operator++() -> iterator&;
 			auto operator++(int) -> iterator;
@@ -233,7 +234,7 @@ gdwg::graph<N, E>::iterator::iterator(const graph* graph,
 , vec_it(vec_it)
 , g(graph) {}
 template<typename N, typename E>
-auto gdwg::graph<N, E>::iterator::operator*() const -> reference {
+auto gdwg::graph<N, E>::iterator::operator*() const -> const reference {
 	return reference{map_it->first, (*vec_it)->get_nodes().second, (*vec_it)->get_weight()};
 }
 template<typename N, typename E>
