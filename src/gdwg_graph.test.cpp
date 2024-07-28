@@ -1274,3 +1274,52 @@ TEST_CASE("Clear: erasing all nodes and edges") {
 	CHECK(g.empty() == true);
 	CHECK(g.begin() == g.end());
 }
+TEST_CASE("Graph output: formatted output") {
+	using graph = gdwg::graph<int, int>;
+	auto const v = std::vector<std::tuple<int, int, std::optional<int>>>{
+	    {2, 4, std::nullopt},
+	    {2, 4, 2},
+	    {2, 1, 1},
+	    {4, 1, std::nullopt},
+	    {1, 5, -1},
+	    {3, 6, -8},
+	    {4, 5, 3},
+	};
+	auto g = graph{};
+	for (const auto& [from, to, weight] : v) {
+		g.insert_node(from);
+		g.insert_node(to);
+		if (weight.has_value()) {
+			g.insert_edge(from, to, weight.value());
+		}
+		else {
+			g.insert_edge(from, to);
+		}
+	}
+	g.insert_node(64);
+	auto out = std::ostringstream{};
+	out << g;
+	auto const expected_output = std::string_view(R"(1 (
+  1 -> 5 | W | -1
+)
+2 (
+  2 -> 1 | W | 1
+  2 -> 4 | U
+  2 -> 4 | W | 2
+)
+3 (
+  3 -> 6 | W | -8
+)
+4 (
+  4 -> 1 | U
+  4 -> 5 | W | 3
+)
+5 (
+)
+6 (
+)
+64 (
+)
+)");
+	CHECK(out.str() == expected_output);
+}
