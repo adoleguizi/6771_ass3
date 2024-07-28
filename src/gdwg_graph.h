@@ -145,11 +145,15 @@ namespace gdwg {
 
 		auto clear() noexcept -> void;
 
+		// template<typename Node, typename Edge>
+		// friend auto operator<<(std::ostream& os, graph<Node,Edge> const& g) -> std::ostream&;
+
 	 private:
 		std::set<N> nodes_;
 		std::map<N, std::vector<std::unique_ptr<edge>>> edges_;
 		struct edge_hash;
 		friend struct edge_hash;
+		[[nodiscard]] auto edges(N const& src) const -> std::vector<std::unique_ptr<edge>>;
 	};
 	template<typename N, typename E>
 	class weighted_edge : public edge<N, E> {
@@ -748,5 +752,24 @@ template<typename N, typename E>
 auto gdwg::graph<N, E>::clear() noexcept -> void {
 	nodes_.clear();
 	edges_.clear();
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::edges(N const& src) const -> std::vector<std::unique_ptr<edge>> {
+	if (!is_node(src)) {
+		throw std::runtime_error("Cannot call gdwg::graph<N, E>::edges if src node doesn't exist in the graph");
+	}
+	auto result = std::vector<std::unique_ptr<edge>>();
+	auto it = edges_.find(src);
+	if (it != edges_.end()) {
+		for (const auto& e : it->second) {
+			if (auto we = dynamic_cast<weighted_edge<N, E>*>(e.get())) {
+				result.push_back(std::make_unique<weighted_edge<N, E>>(*we));
+			}
+			else if (auto ue = dynamic_cast<unweighted_edge<N, E>*>(e.get())) {
+				result.push_back(std::make_unique<unweighted_edge<N, E>>(*ue));
+			}
+		}
+	}
+	return result;
 }
 #endif // GDWG_GRAPH_H
