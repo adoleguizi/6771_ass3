@@ -658,6 +658,54 @@ TEST_CASE("Find weighted edge with different weight parameter") {
 	auto it = g.find(1, 2, "edge2");
 	CHECK(it == g.end());
 }
+TEST_CASE("Find in a complex graph with multiple edges and weights") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_node(4);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	g.insert_edge(2, 3, "edge3");
+	g.insert_edge(3, 4, "edge4");
+	g.insert_edge(1, 4);
+	SECTION("Find existing weighted edge") {
+		auto it = g.find(1, 2, "edge1");
+		CHECK(it != g.end());
+		CHECK((*it).from == 1);
+		CHECK((*it).to == 2);
+		CHECK((*it).weight.has_value());
+		CHECK((*it).weight.value() == "edge1");
+		it = g.find(2, 3, "edge3");
+		CHECK(it != g.end());
+		CHECK((*it).from == 2);
+		CHECK((*it).to == 3);
+		CHECK((*it).weight.has_value());
+		CHECK((*it).weight.value() == "edge3");
+	}
+	SECTION("Find existing unweighted edge") {
+		auto it = g.find(1, 4);
+		CHECK(it != g.end());
+		CHECK((*it).from == 1);
+		CHECK((*it).to == 4);
+		CHECK(!(*it).weight.has_value());
+	}
+	SECTION("Find non-existing edge") {
+		auto it = g.find(2, 4);
+		CHECK(it == g.end());
+
+		it = g.find(3, 1);
+		CHECK(it == g.end());
+	}
+	SECTION("Find weighted edge with wrong weight") {
+		auto it = g.find(1, 2, "wrong_edge");
+		CHECK(it == g.end());
+	}
+	SECTION("Find unweighted edge with weight parameter") {
+		auto it = g.find(1, 4, "edge5");
+		CHECK(it == g.end());
+	}
+}
 TEST_CASE("Connections with a non-existing node") {
 	gdwg::graph<std::string, int> g;
 	g.insert_node("A");
