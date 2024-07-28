@@ -130,8 +130,7 @@ namespace gdwg {
 
 		[[nodiscard]] auto edges(N const& src, N const& dst) const -> std::vector<std::unique_ptr<edge>>;
 
-		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const ->
-		    typename std::vector<std::unique_ptr<edge>>::const_iterator;
+		[[nodiscard]] auto find(N const& src, N const& dst, std::optional<E> weight = std::nullopt) const -> iterator;
 
 		[[nodiscard]] auto connections(N const& src) -> std::vector<N>;
 
@@ -230,9 +229,9 @@ template<typename N, typename E>
 gdwg::graph<N, E>::iterator::iterator(const graph* graph,
                                       typename std::map<N, std::vector<std::unique_ptr<edge>>>::const_iterator map_it,
                                       typename std::vector<std::unique_ptr<edge>>::const_iterator vec_it)
-: g(graph)
-, map_it(map_it)
-, vec_it(vec_it) {}
+: map_it(map_it)
+, vec_it(vec_it)
+, g(graph) {}
 template<typename N, typename E>
 auto gdwg::graph<N, E>::iterator::operator*() const -> reference {
 	return reference{map_it->first, (*vec_it)->get_nodes().second, (*vec_it)->get_weight()};
@@ -567,6 +566,25 @@ auto gdwg::graph<N, E>::edges(N const& src, N const& dst) const -> std::vector<s
 		return *weighted_a->get_weight() < *weighted_b->get_weight();
 	});
 	return result;
+}
+template<typename N, typename E>
+[[nodiscard]] auto gdwg::graph<N, E>::find(N const& src, N const& dst, std::optional<E> weight) const -> iterator {
+	auto it = edges_.find(src);
+	if (it != edges_.end()) {
+		auto edge_it = std::find_if(it->second.begin(), it->second.end(), [&](auto const& e) {
+			if (e->get_nodes() != std::make_pair(src, dst)) {
+				return false;
+			}
+			if (weight.has_value()) {
+				return e->get_weight() == weight;
+			}
+			return !e->get_weight().has_value();
+		});
+		if (edge_it != it->second.end()) {
+			return iterator(this, it, edge_it);
+		}
+	}
+	return end();
 }
 template<typename N, typename E>
 [[nodiscard]] auto gdwg::graph<N, E>::connections(N const& src) -> std::vector<N> {

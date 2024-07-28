@@ -611,6 +611,18 @@ TEST_CASE("edges function handles self loops") {
 	CHECK(edges[2]->get_weight() == 3);
 	CHECK(edges[3]->get_weight() == 4);
 }
+TEST_CASE("Find existing unweighted edge") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2);
+
+	auto it = g.find(1, 2);
+	CHECK(it != g.end());
+	CHECK((*it).from == 1);
+	CHECK((*it).to == 2);
+	CHECK(!(*it).weight.has_value());
+}
 TEST_CASE("Connections with a non-existing node") {
 	gdwg::graph<std::string, int> g;
 	g.insert_node("A");
