@@ -1197,3 +1197,36 @@ TEST_CASE("Graphs with edges in different order are equal") {
 	g2.insert_edge(1, 2, "edge1");
 	CHECK(g1 == g2);
 }
+TEST_CASE("Erase edge: basic functionality") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "edge1");
+	auto it = g.find(1, 2, "edge1");
+	auto next_it = g.erase_edge(it);
+	CHECK(g.find(1, 2, "edge1") == g.end());
+	CHECK(next_it == g.end());
+	CHECK(!g.is_connected(1, 2));
+	CHECK(g.is_node(1));
+	CHECK(g.is_node(2));
+	CHECK(!g.empty());
+}
+TEST_CASE("Erase edge: erase middle edge") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	g.insert_edge(2, 3, "edge3");
+	auto it = g.find(1, 2, "edge1");
+	auto next_it = g.erase_edge(it);
+	CHECK(g.find(1, 2, "edge1") == g.end());
+	CHECK(next_it != g.end());
+	CHECK(g.is_connected(1, 3));
+	CHECK(g.is_connected(2, 3));
+	CHECK(!g.empty());
+	auto next_it_ = g.erase_edge(next_it);
+	CHECK(g.find(1, 3, "edge2") == g.end());
+	CHECK(next_it_ != g.end());
+}
