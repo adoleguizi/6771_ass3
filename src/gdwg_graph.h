@@ -7,6 +7,7 @@
 #include <exception>
 #include <functional>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <memory>
