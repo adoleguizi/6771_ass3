@@ -1233,3 +1233,32 @@ TEST_CASE("Erase edge: erase middle edge") {
 	CHECK(g.find(2, 3, "edge3") == g.end());
 	CHECK(next_it_1 == g.end());
 }
+TEST_CASE("Erase edge: erase range of edges") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, "edge1");
+	g.insert_edge(1, 3, "edge2");
+	g.insert_edge(2, 3, "edge3");
+	g.insert_edge(3, 1, "edge4");
+	auto it_start = g.find(1, 2, "edge1");
+	auto it_end = g.find(2, 3, "edge3");
+	auto ret_it = g.erase_edge(it_start, it_end);
+	// Check if the edges are correctly erased
+	CHECK(g.find(1, 2, "edge1") == g.end());
+	CHECK(g.find(1, 3, "edge2") == g.end());
+	CHECK(ret_it == it_end);
+}
+TEST_CASE("Erase edge: erase single edge") {
+	auto g = gdwg::graph<int, std::string>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_edge(1, 2, "edge1");
+	auto it_start = g.find(1, 2, "edge1");
+	auto it_end = std::next(it_start);
+	auto ret_it = g.erase_edge(it_start, it_end);
+	CHECK(g.find(1, 2, "edge1") == g.end());
+	CHECK(ret_it == it_end);
+	CHECK(g.empty() == false);
+}

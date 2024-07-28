@@ -64,7 +64,7 @@ namespace gdwg {
 				N to;
 				std::optional<E> weight;
 			};
-			using reference = value_type;
+			using reference = const value_type;
 			using pointer = void;
 			using difference_type = std::ptrdiff_t;
 			using iterator_category = std::bidirectional_iterator_tag;
@@ -140,6 +140,8 @@ namespace gdwg {
 
 		[[nodiscard]] auto operator==(graph const& other) const noexcept -> bool;
 		auto erase_edge(iterator i) noexcept -> iterator;
+
+		auto erase_edge(iterator i, iterator s) noexcept -> iterator;
 
 	 private:
 		std::set<N> nodes_;
@@ -732,5 +734,12 @@ auto gdwg::graph<N, E>::erase_edge(iterator i) noexcept -> iterator {
 	else {
 		return iterator(this, map_it, vec_it);
 	}
+}
+template<typename N, typename E>
+auto gdwg::graph<N, E>::erase_edge(iterator i, iterator s) noexcept -> iterator {
+	while (i != s and i != end()) {
+		i = erase_edge(i);
+	}
+	return s;
 }
 #endif // GDWG_GRAPH_H
