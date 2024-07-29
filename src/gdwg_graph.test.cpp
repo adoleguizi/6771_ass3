@@ -706,27 +706,27 @@ TEST_CASE("Find in a complex graph with multiple edges and weights") {
 	}
 }
 TEST_CASE("Connections with a non-existing node") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	CHECK_THROWS_WITH(g.connections("B"), "Cannot call gdwg::graph<N, E>::connections if src doesn't exist in the graph");
 }
 TEST_CASE("Connections with no outgoing edges") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	auto result = g.connections("A");
 	CHECK(result.empty());
 }
 TEST_CASE("Connections with one outgoing edge") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	g.insert_node("B");
 	g.insert_edge("A", "B", 1);
 	auto result = g.connections("A");
-	std::vector<std::string> expected = {"B"};
+	auto expected = std::vector<std::string>{"B"};
 	CHECK(result == expected);
 }
 TEST_CASE("Connections with duplicate outgoing edges") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	g.insert_node("B");
 	g.insert_edge("A", "B", 1);
@@ -736,7 +736,7 @@ TEST_CASE("Connections with duplicate outgoing edges") {
 	CHECK(result == expected);
 }
 TEST_CASE("Connections with differently weighted outgoing edges and test order") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	g.insert_node("B");
 	g.insert_node("C");
@@ -749,7 +749,7 @@ TEST_CASE("Connections with differently weighted outgoing edges and test order")
 	CHECK(result == expected);
 }
 TEST_CASE("Connections with unweighted and weighted outgoing edges") {
-	gdwg::graph<std::string, int> g;
+	auto g = gdwg::graph<std::string, int>{};
 	g.insert_node("A");
 	g.insert_node("B");
 	g.insert_node("C");
@@ -762,12 +762,12 @@ TEST_CASE("Connections with unweighted and weighted outgoing edges") {
 	CHECK(result == expected);
 }
 TEST_CASE("Iterator default constructor and comparison") {
-	gdwg::graph<int, std::string>::iterator it1;
-	gdwg::graph<int, std::string>::iterator it2;
+	auto it1 = gdwg::graph<int, std::string>::iterator();
+	auto it2 = gdwg::graph<int, std::string>::iterator();
 	CHECK(it1 == it2); // Both are default constructed
 }
 TEST_CASE("Iterator specific element constructor and dereference") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_edge(1, 2, "edge");
@@ -778,7 +778,7 @@ TEST_CASE("Iterator specific element constructor and dereference") {
 	CHECK(edge.weight == "edge");
 }
 TEST_CASE("Iterator pre-increment basic consistenct node graph") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -792,7 +792,7 @@ TEST_CASE("Iterator pre-increment basic consistenct node graph") {
 	CHECK((*it).to == 3);
 }
 TEST_CASE("Iterator post-increment") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -808,7 +808,7 @@ TEST_CASE("Iterator post-increment") {
 	CHECK((*it).to == 3);
 }
 TEST_CASE("Iterator pre-increment with complex graph structure") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -846,7 +846,7 @@ TEST_CASE("Iterator pre-increment with complex graph structure") {
 	CHECK((*it).weight == "edge5");
 }
 TEST_CASE("Iterator pre-increment with complex graph and refexive node") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -886,7 +886,7 @@ TEST_CASE("Iterator pre-increment with complex graph and refexive node") {
 	CHECK(it == g.end());
 }
 TEST_CASE("Iterator pre-increment with complex graph(not line graph) and split node") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -913,7 +913,7 @@ TEST_CASE("Iterator pre-increment with complex graph(not line graph) and split n
 	CHECK(it == g.end());
 }
 TEST_CASE("Iterator post-increment with complex graph and reflexive node") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -962,7 +962,7 @@ TEST_CASE("Iterator post-increment with complex graph and reflexive node") {
 	CHECK(it == g.end());
 }
 TEST_CASE("Iterator pre-decrement with empty nodes") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -980,7 +980,7 @@ TEST_CASE("Iterator pre-decrement with empty nodes") {
 	CHECK((*it).weight == "edge1");
 }
 TEST_CASE("Iterator pre-decrement to begin") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -999,7 +999,7 @@ TEST_CASE("Iterator pre-decrement to begin") {
 	CHECK(it == g.begin());
 }
 TEST_CASE("Iterator post-decrement with complex graph and reflexive node") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -1048,7 +1048,7 @@ TEST_CASE("Iterator post-decrement with complex graph and reflexive node") {
 	CHECK(it == g.begin());
 }
 TEST_CASE("Iterator post-decrement with complex graph and reflexive node should be 1->12 1->21 12->19 19->1 19->21") {
-	gdwg::graph<int, int> g;
+	auto g = gdwg::graph<int, int>{};
 	g.insert_node(1);
 	g.insert_node(12);
 	g.insert_node(19);
@@ -1095,7 +1095,7 @@ TEST_CASE("Single node graph begin() and end()") {
 	CHECK(it == g.end());
 }
 TEST_CASE("Single edge graph begin() and end()") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_edge(1, 2, "edge1");
@@ -1106,7 +1106,7 @@ TEST_CASE("Single edge graph begin() and end()") {
 	CHECK((*it).weight == "edge1");
 }
 TEST_CASE("Graph with self-loop begin() and end()") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_edge(1, 1, "self-loop");
 	auto it = g.begin();
@@ -1116,7 +1116,7 @@ TEST_CASE("Graph with self-loop begin() and end()") {
 	CHECK((*it).weight == "self-loop");
 }
 TEST_CASE("Graph with multiple edges from a single node begin() and end()") {
-	gdwg::graph<int, std::string> g;
+	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
 	g.insert_node(2);
 	g.insert_node(3);
@@ -1151,32 +1151,32 @@ TEST_CASE("Graphs with identical nodes and edges are equal") {
 	CHECK(g1 == g2);
 }
 TEST_CASE("Graphs with different nodes are not equal") {
-	gdwg::graph<int, std::string> g1;
+	auto g1 = gdwg::graph<int, std::string>{};
 	g1.insert_node(1);
 	g1.insert_node(2);
-	gdwg::graph<int, std::string> g2;
+	auto g2 = gdwg::graph<int, std::string>{};
 	g2.insert_node(1);
 	g2.insert_node(2);
 	g2.insert_node(3);
 	CHECK(g1 != g2);
 }
 TEST_CASE("Graphs with different edges are not equal") {
-	gdwg::graph<int, std::string> g1;
+	auto g1 = gdwg::graph<int, std::string>{};
 	g1.insert_node(1);
 	g1.insert_node(2);
 	g1.insert_edge(1, 2, "edge1");
-	gdwg::graph<int, std::string> g2;
+	auto g2 = gdwg::graph<int, std::string>{};
 	g2.insert_node(1);
 	g2.insert_node(2);
 	g2.insert_edge(1, 2, "edge2");
 	CHECK(g1 != g2);
 }
 TEST_CASE("Graphs with one having extra edges are not equal") {
-	gdwg::graph<int, std::string> g1;
+	auto g1 = gdwg::graph<int, std::string>{};
 	g1.insert_node(1);
 	g1.insert_node(2);
 	g1.insert_edge(1, 2, "edge1");
-	gdwg::graph<int, std::string> g2;
+	auto g2 = gdwg::graph<int, std::string>{};
 	g2.insert_node(1);
 	g2.insert_node(2);
 	g2.insert_edge(1, 2, "edge1");
@@ -1184,8 +1184,8 @@ TEST_CASE("Graphs with one having extra edges are not equal") {
 	CHECK(!(g1 == g2));
 }
 TEST_CASE("Graphs with edges in different order are equal") {
-	gdwg::graph<int, std::string> g1;
-	gdwg::graph<int, std::string> g2;
+	auto g1 = gdwg::graph<int, std::string>{};
+	auto g2 = gdwg::graph<int, std::string>{};
 	g1.insert_node(1);
 	g1.insert_node(2);
 	g1.insert_edge(1, 2, "edge1");
