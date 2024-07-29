@@ -1249,6 +1249,22 @@ TEST_CASE("Insert and erase edge") {
 	CHECK(it == g.end());
 	std::cout << "Erased edge (1, 2, 5)" << std::endl;
 }
+TEST_CASE("Erase edge: erase last edge") {
+	auto g = gdwg::graph<int, int>{};
+	g.insert_node(1);
+	g.insert_node(2);
+	g.insert_node(3);
+	g.insert_edge(1, 2, 5);
+	g.insert_edge(1, 3, 10);
+	g.insert_edge(2, 3, 15);
+
+	auto it = g.find(2, 3, 15);
+	CHECK(it != g.end());
+
+	auto next_it = g.erase_edge(it);
+	CHECK(next_it == g.end());
+	CHECK(g.find(2, 3, 15) == g.end());
+}
 TEST_CASE("Erase edge: erase middle edge") {
 	auto g = gdwg::graph<int, std::string>{};
 	g.insert_node(1);
