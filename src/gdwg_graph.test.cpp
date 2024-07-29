@@ -9,7 +9,7 @@ TEST_CASE("basic test") {
 	CHECK(g.is_node(n));
 }
 TEST_CASE("graph range constructor") {
-	std::vector<int> nodes = {1, 2, 3, 4, 5};
+	auto nodes = std::vector<int>{1, 2, 3, 4, 5};
 	auto g = gdwg::graph<int, std::string>(nodes.begin(), nodes.end());
 	for (auto n : nodes) {
 		CHECK(g.is_node(n));
@@ -261,62 +261,61 @@ TEST_CASE("merge_replace_node with self loop") {
 	CHECK(g.insert_edge("B", "B", 2) == false);
 }
 TEST_CASE("Print unweighted edge") {
-	gdwg::unweighted_edge<std::string, int> e("A", "B");
+	auto e = gdwg::unweighted_edge<std::string, int>("A", "B");
 	auto result = e.print_edge();
-	std::string expected = "A -> B | U";
+	auto expected = std::string{"A -> B | U"};
 	CHECK(result == expected);
 }
 TEST_CASE("Print weighted edge") {
-	gdwg::weighted_edge<std::string, int> e("A", "B", 5);
+	auto e = gdwg::weighted_edge<std::string, int>("A", "B", 5);
 	auto result = e.print_edge();
 	std::string expected = "A -> B | W | 5";
 	CHECK(result == expected);
 }
 TEST_CASE("Print edge with different types") {
-	gdwg::unweighted_edge<int, double> e1(1, 2);
+	auto e1 = gdwg::unweighted_edge<int, double>(1, 2);
 	auto result1 = e1.print_edge();
-	std::string expected1 = "1 -> 2 | U";
+	auto expected1 = std::string{"1 -> 2 | U"};
 	CHECK(result1 == expected1);
 
-	gdwg::weighted_edge<int, double> e2(1, 2, 3.14);
+	auto e2 = gdwg::weighted_edge<int, double>(1, 2, 3.14);
 	auto result2 = e2.print_edge();
-	std::string expected2 = "1 -> 2 | W | 3.14";
+	auto expected2 = std::string{"1 -> 2 | W | 3.14"};
 	CHECK(result2 == expected2);
 }
 TEST_CASE("Test is_weighted for weighted edges") {
-	gdwg::weighted_edge<int, double> we1(1, 2, 3.14);
+	auto we1 = gdwg::weighted_edge<int, double>(1, 2, 3.14);
 	auto result1 = we1.is_weighted();
 	CHECK(result1 == true);
 
-	gdwg::weighted_edge<std::string, int> we2("A", "B", 10);
+	auto we2 = gdwg::weighted_edge<std::string, int>("A", "B", 10);
 	auto result2 = we2.is_weighted();
 	CHECK(result2 == true);
 }
-
 TEST_CASE("Test is_weighted for unweighted edges") {
-	gdwg::unweighted_edge<int, double> ue1(1, 2);
+	auto ue1 = gdwg::unweighted_edge<int, double>(1, 2);
 	auto result1 = ue1.is_weighted();
 	CHECK(result1 == false);
 
-	gdwg::unweighted_edge<std::string, int> ue2("A", "B");
+	auto ue2 = gdwg::unweighted_edge<std::string, int>("A", "B");
 	auto result2 = ue2.is_weighted();
 	CHECK(result2 == false);
 }
 TEST_CASE("Test get_nodes with weighted edge") {
-	gdwg::weighted_edge<int, double> we1(1, 2, 3.14);
+	auto we1 = gdwg::weighted_edge<int, double>(1, 2, 3.14);
 	auto result1 = we1.get_nodes();
 	CHECK(result1 == std::make_pair(1, 2));
 
-	gdwg::weighted_edge<std::string, int> we2("A", "B", 10);
+	auto we2 = gdwg::weighted_edge<std::string, int>("A", "B", 10);
 	auto result2 = we2.get_nodes();
 	CHECK(result2 == std::make_pair(std::string("A"), std::string("B")));
 }
 TEST_CASE("Test get_nodes with unweighted edge") {
-	gdwg::unweighted_edge<int, double> ue1(1, 2);
+	auto ue1 = gdwg::unweighted_edge<int, double>(1, 2);
 	auto result1 = ue1.get_nodes();
 	CHECK(result1 == std::make_pair(1, 2));
 
-	gdwg::unweighted_edge<std::string, int> ue2("A", "B");
+	auto ue2 = gdwg::unweighted_edge<std::string, int>("A", "B");
 	auto result2 = ue2.get_nodes();
 	CHECK(result2 == std::make_pair(std::string("A"), std::string("B")));
 }
