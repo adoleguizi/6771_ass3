@@ -156,6 +156,42 @@ TEST_CASE("Move constructor: iterators from this are invalidated") {
 	CHECK(g2.is_connected(1, 2));
 	CHECK(g1.empty());
 }
+TEST_CASE("Move assignment: basic functionality") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2.insert_node(3);
+	g2.insert_node(4);
+	g2.insert_edge(3, 4, "edge2");
+	g2 = std::move(g1);
+	CHECK(g2.is_node(1));
+	CHECK(g2.is_node(2));
+	CHECK(g2.is_connected(1, 2));
+	CHECK(g2.find(1, 2, "edge1") != g2.end());
+	CHECK(g1.empty());
+}
+TEST_CASE("Move assignment: move to empty graph") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, "edge1");
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2 = std::move(g1);
+	CHECK(g2.is_node(1));
+	CHECK(g2.is_node(2));
+	CHECK(g2.is_connected(1, 2));
+	CHECK(g2.find(1, 2, "edge1") != g2.end());
+	CHECK(g1.empty());
+}
+TEST_CASE("Move assignment: move from empty graph to another empty graph") {
+	auto g1 = gdwg::graph<int, std::string>{};
+	auto g2 = gdwg::graph<int, std::string>{};
+	g2 = std::move(g1);
+	CHECK(g1.empty());
+	CHECK(g2.empty());
+}
 TEST_CASE("replace node with a new node") {
 	auto g = gdwg::graph<int, std::string>{1, 2, 3};
 	REQUIRE(g.is_node(1));
