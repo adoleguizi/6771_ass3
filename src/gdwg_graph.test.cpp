@@ -1430,6 +1430,28 @@ TEST_CASE("operator==: graphs with different nodes but same edges") {
 	g2.insert_edge(1, 3, 5);
 	CHECK(!(g1 == g2));
 }
+TEST_CASE("operator==: graphs with different nodes and edges") {
+	auto g1 = gdwg::graph<int, int>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, 5);
+	auto g2 = gdwg::graph<int, int>{};
+	g2.insert_node(3);
+	g2.insert_node(4);
+	g2.insert_edge(3, 4, 10);
+	CHECK(!(g1 == g2));
+}
+TEST_CASE("operator==: graphs with different weighted edges") {
+	auto g1 = gdwg::graph<int, int>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, 5);
+	auto g2 = gdwg::graph<int, int>{};
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_edge(1, 2);
+	CHECK(!(g1 == g2));
+}
 TEST_CASE("Graph output: formatted output") {
 	using graph = gdwg::graph<int, int>;
 	auto const v = std::vector<std::tuple<int, int, std::optional<int>>>{
