@@ -1403,6 +1403,33 @@ TEST_CASE("Clear: erasing all nodes and edges") {
 	CHECK(g.empty() == true);
 	CHECK(g.begin() == g.end());
 }
+TEST_CASE("operator==: empty graphs") {
+	auto g1 = gdwg::graph<int, int>{};
+	auto g2 = gdwg::graph<int, int>{};
+	CHECK(g1 == g2);
+}
+TEST_CASE("operator==: graphs with same nodes but no edges") {
+	auto g1 = gdwg::graph<int, int>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_node(3);
+	auto g2 = gdwg::graph<int, int>{};
+	g2.insert_node(1);
+	g2.insert_node(2);
+	g2.insert_node(3);
+	CHECK(g1 == g2);
+}
+TEST_CASE("operator==: graphs with different nodes but same edges") {
+	auto g1 = gdwg::graph<int, int>{};
+	g1.insert_node(1);
+	g1.insert_node(2);
+	g1.insert_edge(1, 2, 5);
+	auto g2 = gdwg::graph<int, int>{};
+	g2.insert_node(1);
+	g2.insert_node(3);
+	g2.insert_edge(1, 3, 5);
+	CHECK(!(g1 == g2));
+}
 TEST_CASE("Graph output: formatted output") {
 	using graph = gdwg::graph<int, int>;
 	auto const v = std::vector<std::tuple<int, int, std::optional<int>>>{
