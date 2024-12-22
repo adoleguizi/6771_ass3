@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/mnt/e/6771_T2/ass3/cmake-build-debug",
+  "command": "/usr/bin/clang++  -I/mnt/e/6771_T2/ass3/lib -g -fcolor-diagnostics -Wall -Wextra -Werror -pedantic-errors -Wconversion -Wsign-conversion -Wdouble-promotion -Wcast-align -Wformat=2 -Wuninitialized -Wnull-dereference -Wnon-virtual-dtor -Woverloaded-virtual -Wdeprecated-copy-dtor -Wold-style-cast -Wzero-as-null-pointer-constant -Wsuggest-override -fstack-protector-strong -std=c++20 -o CMakeFiles/catch2_main.dir/lib/catch2_main.cpp.o -c /mnt/e/6771_T2/ass3/lib/catch2_main.cpp",
+  "file": "/mnt/e/6771_T2/ass3/lib/catch2_main.cpp"
+},
+{
+  "directory": "/mnt/e/6771_T2/ass3/cmake-build-debug",
+  "command": "/usr/bin/clang++  -I/mnt/e/6771_T2/ass3/lib -g -fcolor-diagnostics -Wall -Wextra -Werror -pedantic-errors -Wconversion -Wsign-conversion -Wdouble-promotion -Wcast-align -Wformat=2 -Wuninitialized -Wnull-dereference -Wnon-virtual-dtor -Woverloaded-virtual -Wdeprecated-copy-dtor -Wold-style-cast -Wzero-as-null-pointer-constant -Wsuggest-override -fstack-protector-strong -std=c++20 -o CMakeFiles/gdwg_graph.dir/src/gdwg_graph.cpp.o -c /mnt/e/6771_T2/ass3/src/gdwg_graph.cpp",
+  "file": "/mnt/e/6771_T2/ass3/src/gdwg_graph.cpp"
+},
+{
+  "directory": "/mnt/e/6771_T2/ass3/cmake-build-debug",
+  "command": "/usr/bin/clang++  -I/mnt/e/6771_T2/ass3/lib -g -fcolor-diagnostics -Wall -Wextra -Werror -pedantic-errors -Wconversion -Wsign-conversion -Wdouble-promotion -Wcast-align -Wformat=2 -Wuninitialized -Wnull-dereference -Wnon-virtual-dtor -Woverloaded-virtual -Wdeprecated-copy-dtor -Wold-style-cast -Wzero-as-null-pointer-constant -Wsuggest-override -fstack-protector-strong -std=c++20 -o CMakeFiles/client.dir/src/client.cpp.o -c /mnt/e/6771_T2/ass3/src/client.cpp",
+  "file": "/mnt/e/6771_T2/ass3/src/client.cpp"
+},
+{
+  "directory": "/mnt/e/6771_T2/ass3/cmake-build-debug",
+  "command": "/usr/bin/clang++  -I/mnt/e/6771_T2/ass3/lib -g -fcolor-diagnostics -Wall -Wextra -Werror -pedantic-errors -Wconversion -Wsign-conversion -Wdouble-promotion -Wcast-align -Wformat=2 -Wuninitialized -Wnull-dereference -Wnon-virtual-dtor -Woverloaded-virtual -Wdeprecated-copy-dtor -Wold-style-cast -Wzero-as-null-pointer-constant -Wsuggest-override -fstack-protector-strong -std=c++20 -o CMakeFiles/gdwg_graph_test_exe.dir/src/gdwg_graph.test.cpp.o -c /mnt/e/6771_T2/ass3/src/gdwg_graph.test.cpp",
+  "file": "/mnt/e/6771_T2/ass3/src/gdwg_graph.test.cpp"
+}
+]
